@@ -385,9 +385,13 @@ function app() {
           this.currentSpeakerLabel = `${msg.player_id}号玩家 正在发言…`;
           break;
         case "speech_delta": {
+          // 清理 LLM 输出的发言结束标记（防止漏入历史/发言区）
+          const SPEECH_END_MARK = "【发言结束】";
+          const stripMark = (s) => (s || "").replace(SPEECH_END_MARK, "").trim();
           const last = this.speeches[this.speeches.length - 1];
           const role = this._rolesByPlayer[String(msg.player_id)] || "";
           if (msg.replace) {
+            // replace 是权威文本（后端已清理过结束标记）
             if (last && last.player_id === msg.player_id) {
               last.text = msg.text || "";
               last.final = true;
@@ -413,17 +417,19 @@ function app() {
             this._scrollToBottom();
             break;
           }
+          // streaming 累积路径
           if (last && last.player_id === msg.player_id && !last.final) {
             last.text += msg.text;
             if (msg.final) {
               last.final = true;
-              if (last.text.trim()) {
-                this._addHistory({
-                  kind: "speech", day: this.game.day, phase: this.phase,
-                  player_id: msg.player_id,
-                  text: last.text,
-                  role: last.role,
-                });
+              // 标记【发言结束】剥掉，避免发言区显示它
+              const clean = stripMark(last.text);
+              if (clean && clean !== last.text) last.text = clean;
+              // 不在这里 addHistory，让 replace 消息做权威添加，避免重复
+            } else {
+              // 流式 chunk：去掉刚到的 chunk 里的【发言结束】（仅最后一段含）
+              if (msg.text && msg.text.includes(SPEECH_END_MARK)) {
+                last.text = stripMark(last.text);
               }
             }
           } else if (!msg.final || (msg.final && (!msg.text || msg.text.length > 0))) {
@@ -434,7 +440,7 @@ function app() {
             this.speeches.push({
               player_id: msg.player_id,
               nickname: `${msg.player_id}号玩家`,
-              text: msg.text || "",
+              text: stripMark(msg.text || ""),
               role,
               final: msg.final,
             });
