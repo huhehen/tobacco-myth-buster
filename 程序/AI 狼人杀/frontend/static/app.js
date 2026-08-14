@@ -208,6 +208,11 @@ function app() {
         const ny = Math.max(0, Math.min(window.innerHeight - card.offsetHeight, cy - origCardY));
         this.cardX = nx;
         this.cardY = ny;
+        // 直接设置 style 避免 CSS transition 造成的拖动延迟
+        card.style.left = nx + 'px';
+        card.style.top = ny + 'px';
+        card.style.right = 'auto';
+        card.style.bottom = 'auto';
       };
       const onUp = () => {
         card.style.cursor = "grab";
@@ -382,15 +387,25 @@ function app() {
         case "speech_delta": {
           const last = this.speeches[this.speeches.length - 1];
           const role = this._rolesByPlayer[String(msg.player_id)] || "";
-          if (msg.replace && last && last.player_id === msg.player_id) {
-            last.text = msg.text || "";
-            last.final = true;
+          if (msg.replace) {
+            if (last && last.player_id === msg.player_id) {
+              last.text = msg.text || "";
+              last.final = true;
+            } else {
+              this.speeches.push({
+                player_id: msg.player_id,
+                nickname: `${msg.player_id}号玩家`,
+                text: msg.text || "",
+                role,
+                final: true,
+              });
+            }
             if (msg.text && msg.text.trim()) {
               this._addHistory({
                 kind: "speech", day: this.game.day, phase: this.phase,
                 player_id: msg.player_id,
                 text: msg.text,
-                role: last.role,
+                role: role || last?.role,
               });
             }
             this.speakingNow = 0;
@@ -400,7 +415,17 @@ function app() {
           }
           if (last && last.player_id === msg.player_id && !last.final) {
             last.text += msg.text;
-            if (msg.final) last.final = true;
+            if (msg.final) {
+              last.final = true;
+              if (last.text.trim()) {
+                this._addHistory({
+                  kind: "speech", day: this.game.day, phase: this.phase,
+                  player_id: msg.player_id,
+                  text: last.text,
+                  role: last.role,
+                });
+              }
+            }
           } else if (!msg.final || (msg.final && (!msg.text || msg.text.length > 0))) {
             if (msg.final && (!msg.text || msg.text.length === 0)) {
               if (last) last.final = true;
@@ -413,20 +438,18 @@ function app() {
               role,
               final: msg.final,
             });
-          }
-          if (msg.final) {
-            const last2 = this.speeches[this.speeches.length - 1];
-            if (last2 && last2.player_id === msg.player_id && last2.text.trim()) {
+            if (msg.final && (msg.text || "").trim()) {
+              const newLast = this.speeches[this.speeches.length - 1];
               this._addHistory({
                 kind: "speech", day: this.game.day, phase: this.phase,
-                player_id: last2.player_id,
-                text: last2.text,
-                role: last2.role,
+                player_id: msg.player_id,
+                text: newLast.text,
+                role: newLast.role,
               });
             }
-            this.speakingNow = 0;
-            this.currentSpeakerLabel = "";
           }
+          this.speakingNow = 0;
+          this.currentSpeakerLabel = "";
           this._scrollToBottom();
           break;
         }

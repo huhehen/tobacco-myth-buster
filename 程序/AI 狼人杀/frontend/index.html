@@ -967,7 +967,7 @@
     }
     .panel-actions { display: flex; gap: 8px; margin-top: 12px; }
 
-    /* ---- 我的角色卡（浮动） ---- */
+    /* ---- 我的角色卡（可拖动） ---- */
     .my-card {
       position: fixed;
       right: 24px; bottom: 100px;
@@ -982,14 +982,12 @@
       cursor: grab;
       touch-action: none;
       user-select: none;
-      transition: all var(--dur-mid) var(--ease-smooth);
-      animation: mycard-float 4s ease-in-out infinite;
+      transition: background var(--dur-mid) var(--ease-smooth),
+                  border-color var(--dur-mid) var(--ease-smooth),
+                  box-shadow var(--dur-small) var(--ease-out);
+      will-change: transform;
     }
-    @keyframes mycard-float {
-      0%, 100% { transform: translateY(0); }
-      50%       { transform: translateY(-4px); }
-    }
-    .my-card:active { cursor: grabbing; animation-play-state: paused; }
+    .my-card:active { cursor: grabbing; }
     .my-card:hover {
       box-shadow: 0 16px 48px rgba(0,0,0,0.15);
       transform: translateY(-2px);
