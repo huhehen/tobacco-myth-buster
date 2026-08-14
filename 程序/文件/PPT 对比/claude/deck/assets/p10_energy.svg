@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="100%" height="100%">
+  <rect width="400" height="300" fill="#fff"/>
+  <!-- Sun -->
+  <circle cx="310" cy="70" r="35" fill="none" stroke="#0a0a0a" stroke-width="1.5"/>
+  <circle cx="310" cy="70" r="8" fill="#0a0a0a"/>
+  <!-- Sun rays -->
+  <line x1="310" y1="20" x2="310" y2="5" stroke="#0a0a0a" stroke-width="1" opacity="0.4"/>
+  <line x1="310" y1="120" x2="310" y2="135" stroke="#0a0a0a" stroke-width="1" opacity="0.4"/>
+  <line x1="260" y1="70" x2="245" y2="70" stroke="#0a0a0a" stroke-width="1" opacity="0.4"/>
+  <line x1="360" y1="70" x2="375" y2="70" stroke="#0a0a0a" stroke-width="1" opacity="0.4"/>
+  <line x1="275" y1="35" x2="265" y2="25" stroke="#0a0a0a" stroke-width="1" opacity="0.4"/>
+  <line x1="345" y1="105" x2="355" y2="115" stroke="#0a0a0a" stroke-width="1" opacity="0.4"/>
+  <!-- Solar panel grid -->
+  <rect x="40" y="120" width="120" height="80" fill="none" stroke="#0a0a0a" stroke-width="1.5"/>
+  <line x1="80" y1="120" x2="80" y2="200" stroke="#0a0a0a" stroke-width="0.8" opacity="0.5"/>
+  <line x1="120" y1="120" x2="120" y2="200" stroke="#0a0a0a" stroke-width="0.8" opacity="0.5"/>
+  <line x1="160" y1="120" x2="160" y2="200" stroke="#0a0a0a" stroke-width="0.8" opacity="0.5"/>
+  <line x1="40" y1="160" x2="160" y2="160" stroke="#0a0a0a" stroke-width="0.8" opacity="0.5"/>
+  <!-- Wind turbine -->
+  <line x1="320" y1="250" x2="320" y2="170" stroke="#0a0a0a" stroke-width="1.5"/>
+  <line x1="300" y1="170" x2="340" y2="170" stroke="#0a0a0a" stroke-width="1"/>
+  <line x1="320" y1="170" x2="305" y2="140" stroke="#0a0a0a" stroke-width="1"/>
+  <line x1="320" y1="170" x2="335" y2="150" stroke="#0a0a0a" stroke-width="1"/>
+  <line x1="320" y1="170" x2="310" y2="145" stroke="#0a0a0a" stroke-width="1"/>
+  <!-- Ground line -->
+  <line x1="30" y1="250" x2="390" y2="250" stroke="#0a0a0a" stroke-width="1" opacity="0.3"/>
+</svg>

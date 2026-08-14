@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="100%" height="100%">
+  <rect width="400" height="300" fill="#fff"/>
+  <!-- Rocket silhouette -->
+  <path d="M200,30 L215,100 L210,200 L220,230 L200,220 L180,230 L190,200 L185,100 Z" fill="none" stroke="#0a0a0a" stroke-width="1.5"/>
+  <!-- Window -->
+  <circle cx="200" cy="110" r="10" fill="none" stroke="#0a0a0a" stroke-width="1.2"/>
+  <!-- Flame -->
+  <path d="M195,220 L200,260 L205,220" fill="none" stroke="#0a0a0a" stroke-width="1.2" opacity="0.6"/>
+  <path d="M198,220 L200,245 L202,220" fill="none" stroke="#0a0a0a" stroke-width="1" opacity="0.4"/>
+  <!-- Stars -->
+  <circle cx="60" cy="50" r="1.5" fill="#0a0a0a" opacity="0.5"/>
+  <circle cx="340" cy="80" r="1" fill="#0a0a0a" opacity="0.4"/>
+  <circle cx="80" cy="180" r="1.2" fill="#0a0a0a" opacity="0.4"/>
+  <circle cx="330" cy="200" r="1.5" fill="#0a0a0a" opacity="0.5"/>
+  <circle cx="120" cy="260" r="1" fill="#0a0a0a" opacity="0.3"/>
+  <circle cx="290" cy="270" r="1.2" fill="#0a0a0a" opacity="0.4"/>
+  <!-- Orbit path -->
+  <ellipse cx="200" cy="150" rx="160" ry="50" fill="none" stroke="#0a0a0a" stroke-width="0.8" opacity="0.2" stroke-dasharray="4,4"/>
+  <!-- Moon hint -->
+  <circle cx="50" cy="130" r="15" fill="none" stroke="#0a0a0a" stroke-width="1" opacity="0.3"/>
+  <circle cx="350" cy="160" r="10" fill="none" stroke="#0a0a0a" stroke-width="0.8" opacity="0.25"/>
+</svg>
