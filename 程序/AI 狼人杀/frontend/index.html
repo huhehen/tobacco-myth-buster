@@ -1187,6 +1187,209 @@
       .waiting { padding: 24px 16px; }
       .player-grid { grid-template-columns: 1fr; }
     }
+
+    /* ============================================================
+       上帝视角 HUD（死亡玩家全视角）
+       设计：暗色半透明遮罩 + 时间线 + 折叠卡片
+       氛围：低沉紫色调 + 微光呼吸，区分活人视角
+       ============================================================ */
+    .godview-overlay {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 25;
+      display: flex;
+      flex-direction: column;
+      animation: gv-fade-in 1.2s var(--ease-out) both;
+    }
+    @keyframes gv-fade-in {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .godview-banner {
+      pointer-events: auto;
+      align-self: center;
+      margin: 16px auto 0;
+      padding: 8px 20px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(123,104,238,0.18), rgba(58,122,80,0.12));
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(123,104,238,0.35);
+      color: var(--text);
+      font-size: 13px;
+      letter-spacing: 0.04em;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .godview-banner .gv-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--night-accent);
+      box-shadow: 0 0 12px var(--night-accent);
+      animation: gv-pulse 2.4s var(--ease-smooth) infinite;
+    }
+    @keyframes gv-pulse {
+      0%, 100% { opacity: 0.5; transform: scale(1); }
+      50%      { opacity: 1;   transform: scale(1.25); }
+    }
+    .godview-banner .gv-toggle {
+      pointer-events: auto;
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.15);
+      color: var(--text-soft);
+      border-radius: 999px;
+      padding: 3px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background var(--dur-micro) var(--ease-out);
+    }
+    .godview-banner .gv-toggle:hover { background: rgba(255,255,255,0.08); }
+
+    .godview-panel {
+      pointer-events: auto;
+      margin: 12px 16px 16px;
+      max-height: 42vh;
+      overflow-y: auto;
+      background: rgba(14,14,18,0.78);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(123,104,238,0.25);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      padding: 16px 18px;
+      color: var(--night-text);
+      animation: gv-slide-down 0.6s var(--ease-out) 0.2s both;
+    }
+    body:not(.night-mode) .godview-panel {
+      background: rgba(26,24,20,0.84);
+      color: #f0ece4;
+      border-color: rgba(196,122,32,0.3);
+    }
+    @keyframes gv-slide-down {
+      from { opacity: 0; transform: translateY(-12px); max-height: 0; }
+      to   { opacity: 1; transform: translateY(0);     max-height: 42vh; }
+    }
+    .godview-panel.collapsed {
+      max-height: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+      margin-top: 0;
+      margin-bottom: 0;
+      border-color: transparent;
+      overflow: hidden;
+    }
+    .gv-day-block { margin-bottom: 14px; }
+    .gv-day-block:last-child { margin-bottom: 0; }
+    .gv-day-title {
+      font-family: var(--font-serif);
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--night-accent);
+      margin: 0 0 8px;
+      letter-spacing: 0.02em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    body:not(.night-mode) .gv-day-title { color: var(--accent); }
+    .gv-day-title::before {
+      content: "";
+      display: inline-block;
+      width: 14px;
+      height: 1px;
+      background: currentColor;
+      opacity: 0.5;
+    }
+    .gv-phase-block { margin-bottom: 12px; }
+    .gv-phase-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--night-soft-text);
+      margin: 0 0 6px;
+      opacity: 0.7;
+    }
+    body:not(.night-mode) .gv-phase-title { color: rgba(240,236,228,0.6); }
+    .gv-log-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-left-width: 3px;
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      margin-bottom: 6px;
+      transition: background var(--dur-micro) var(--ease-out), transform var(--dur-small) var(--ease-spring);
+      cursor: pointer;
+      animation: gv-card-in 0.5s var(--ease-out) both;
+    }
+    @keyframes gv-card-in {
+      from { opacity: 0; transform: translateX(-6px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    .gv-log-card:hover {
+      background: rgba(255,255,255,0.07);
+      transform: translateX(2px);
+    }
+    .gv-log-card.gv-wolf     { border-left-color: var(--wolf); }
+    .gv-log-card.gv-divine   { border-left-color: var(--night-accent); }
+    .gv-log-card.gv-witch    { border-left-color: #c45a8c; }
+    .gv-log-card.gv-guard    { border-left-color: var(--good); }
+    .gv-log-card.gv-hunter   { border-left-color: #d97706; }
+    .gv-log-card.gv-vote     { border-left-color: rgba(255,255,255,0.35); }
+    .gv-log-card.gv-default  { border-left-color: rgba(255,255,255,0.25); }
+    .gv-log-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+    }
+    .gv-log-kind {
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+    .gv-log-actor { opacity: 0.85; }
+    .gv-log-target {
+      margin-left: auto;
+      padding: 2px 8px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 999px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .gv-log-thinking {
+      margin-top: 8px;
+      padding: 8px 10px;
+      background: rgba(0,0,0,0.25);
+      border-radius: var(--radius-sm);
+      font-size: 12.5px;
+      line-height: 1.55;
+      color: rgba(240,236,228,0.85);
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .gv-log-thinking-empty {
+      opacity: 0.55;
+      font-style: italic;
+      font-size: 12px;
+      margin-top: 6px;
+    }
+    .gv-log-proposals {
+      margin-top: 6px;
+      font-size: 12px;
+      color: rgba(240,236,228,0.7);
+      line-height: 1.55;
+    }
+    .gv-log-proposals span { margin-right: 12px; }
+    .gv-empty {
+      text-align: center;
+      padding: 24px 8px;
+      color: var(--night-soft-text);
+      opacity: 0.6;
+      font-size: 13px;
+    }
   </style>
 </head>
 <body>
@@ -1595,6 +1798,57 @@
            x-show="myRole === '狼人' && wolfPartners.length"
            x-text="'你的狼人同伴：' + wolfPartners.join('号玩家、') + '号玩家'"></div>
       <button class="btn btn-primary btn-full" @click="confirmRole">确认，进入游戏</button>
+    </div>
+  </div>
+
+  <!-- ============ 上帝视角 HUD（死亡玩家全视角） ============ -->
+  <div class="godview-overlay" x-show="iAmDead" x-cloak>
+    <div class="godview-banner">
+      <span class="gv-dot"></span>
+      <span>上帝视角 · 已解锁</span>
+      <button class="gv-toggle" @click="godViewExpanded['__banner_toggle'] = !godViewExpanded['__banner_toggle']">
+        <span x-show="!godViewExpanded['__banner_toggle']">展开</span>
+        <span x-show="godViewExpanded['__banner_toggle']">收起</span>
+      </button>
+    </div>
+    <div class="godview-panel"
+         :class="{ collapsed: !godViewExpanded['__banner_toggle'] }"
+         x-show="godViewExpanded['__banner_toggle']">
+      <template x-if="decisionLogs.length === 0">
+        <div class="gv-empty">暂无决策日志</div>
+      </template>
+      <template x-for="dayGroup in godViewLogsByDay()" :key="'day-' + dayGroup.day">
+        <div class="gv-day-block">
+          <div class="gv-day-title" x-text="'第 ' + dayGroup.day + ' 天'"></div>
+          <template x-for="phaseGroup in godViewLogsByPhase(dayGroup)" :key="'phase-' + dayGroup.day + '-' + phaseGroup.phase">
+            <div class="gv-phase-block">
+              <div class="gv-phase-title" x-text="phaseGroup.phase"></div>
+              <template x-for="(log, idx) in phaseGroup.logs" :key="godViewLogKey(log, idx)">
+                <div class="gv-log-card" :class="godViewKindClass(log.kind)" @click="toggleGodViewLog(log, idx)">
+                  <div class="gv-log-head">
+                    <span class="gv-log-kind" x-text="log.kind_label || log.kind"></span>
+                    <span class="gv-log-actor" x-text="'· ' + godViewActorLabel(log)"></span>
+                    <span class="gv-log-target" x-text="godViewDecisionLabel(log)"></span>
+                  </div>
+                  <template x-if="log.thinking && godViewIsExpanded(log, idx)">
+                    <div class="gv-log-thinking" x-text="log.thinking"></div>
+                  </template>
+                  <template x-if="!log.thinking && godViewIsExpanded(log, idx)">
+                    <div class="gv-log-thinking-empty">（人类玩家决策，无 AI 思考记录）</div>
+                  </template>
+                  <template x-if="log.proposals && log.proposals.length && godViewIsExpanded(log, idx)">
+                    <div class="gv-log-proposals">
+                      <template x-for="p in log.proposals" :key="'prop-' + dayGroup.day + '-' + log.kind + '-' + p.wolf_id">
+                        <span x-text="(p.wolf_nickname || (p.wolf_id + '号玩家')) + ' 提议 ' + (p.target_id ? (p.target_id + '号玩家') : '弃权')"></span>
+                      </template>
+                    </div>
+                  </template>
+                </div>
+              </template>
+            </div>
+          </template>
+        </div>
+      </template>
     </div>
   </div>
 </div>

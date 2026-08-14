@@ -2,9 +2,16 @@
 
 M2 阶段：AI 玩家使用 FakeSpeaker（固定话术）验证游戏规则正确性。
 M3 阶段：接入真实 LLM（替换 FakeSpeaker 为 LlmSpeaker）。
+
+上帝视角（死亡玩家全视角）：
+- 每个 AI 决策环节（投票/狼杀/女巫/预言家/守卫/猎人）都生成一条结构化日志，
+  包含思考过程、候选、最终决策。
+- 日志只广播给当前**已死亡**玩家（活人永不接收，避免泄露 AI CoT）。
+- 玩家死亡瞬间补发截至当前的完整历史，之后每个新日志实时推送给死亡玩家。
 """
 import asyncio
 import random
+import time
 
 from ..room.manager import Room
 from .judge import (
@@ -25,6 +32,18 @@ NARRATOR_VOICE = "zh-CN-YunjianNeural"
 
 # 需要校验目标合法性的行动
 TARGET_ACTIONS = ("预言家查验", "女巫毒人", "守卫守护", "猎人开枪", "投票")
+
+# 上帝视角日志的阶段 / 种类标识
+DECISION_KIND_LABELS = {
+    "wolf_proposal": "狼人提议",
+    "wolf_consensus": "狼群决议",
+    "divine": "预言家查验",
+    "witch_save": "女巫救人",
+    "witch_poison": "女巫毒人",
+    "guard": "守卫守护",
+    "hunter_shoot": "猎人开枪",
+    "vote": "投票",
+}
 
 
 class FakeSpeaker:
@@ -68,6 +87,11 @@ class GameDirector:
         # 人类行动等待：{player_id: (action, asyncio.Future)}
         self.human_actions: dict[int, tuple] = {}
         self.disconnected: set[int] = set()   # 行动中断线等待重连的玩家
+        # 上帝视角日志：每个 AI 决策环节（含思考/CoT/候选/最终决定）。
+        # 死亡玩家可随时调取，活人永不接收。游戏结束不持久化。
+        self.decision_logs: list[dict] = []
+        # 已通知过死亡日志的玩家集合，避免重复补发
+        self._notified_dead: set[int] = set()
 
     # ---------- 对外接口 ----------
 
@@ -82,7 +106,10 @@ class GameDirector:
         fut.set_result({"action": action, "data": data})
 
     def snapshot(self, player_id: int) -> dict | None:
-        """重连状态快照：角色 + 阶段 + 死者 + 公开事件 + 待行动状态。"""
+        """重连状态快照：角色 + 阶段 + 死者 + 公开事件 + 待行动状态。
+
+        已死亡玩家额外获得截至当前的完整决策日志（上帝视角）。
+        """
         game = self.game
         if game is None:
             return None
@@ -110,6 +137,9 @@ class GameDirector:
         if p.role == "女巫":
             snap["witch_antidote"] = game.witch_used_antidote
             snap["witch_poison"] = game.witch_used_poison
+        # 已死亡玩家附带决策日志（上帝视角历史快照）
+        if not p.alive:
+            snap["decision_logs"] = list(self.decision_logs)
         entry = self.human_actions.get(player_id)
         if entry is not None:
             snap["pending_action"] = entry[0]
@@ -206,14 +236,42 @@ class GameDirector:
         proposals = []
         for wolf in wolves:
             if wolf.is_ai:
-                proposals.append(await self._ai_decide(wolf, "狼人提议"))
+                target = await self._ai_decide(wolf, "狼人提议")
             else:
-                proposals.append(await self._human_act(wolf, "狼人提议"))
+                target = await self._human_act(wolf, "狼人提议")
+            proposals.append(target or 0)
+            # 上帝视角日志：每只狼的提议 + CoT 思考
+            thinking = game.decision_thinking.get(wolf.player_id, "")
+            await self._record_decision(self._make_decision_log(
+                day=game.day, phase="夜晚",
+                kind="wolf_proposal",
+                actor=wolf,
+                thinking=thinking,
+                target_id=target or 0,
+                target_name=f"{target}号玩家" if target else "",
+            ))
         target = pick_wolf_target(game, proposals)
         if target is None:
             good = [pid for pid in game.alive_ids() if not is_wolf(game.players[pid].role)]
             if good:
                 target = random.choice(good)
+        # 狼群决议日志：汇总每只狼的提议 + 最终击杀目标
+        proposal_summary = [
+            {"wolf_id": w.player_id, "wolf_nickname": w.nickname, "target_id": t}
+            for w, t in zip(wolves, proposals)
+        ]
+        await self._record_decision(self._make_decision_log(
+            day=game.day, phase="夜晚",
+            kind="wolf_consensus",
+            actor=None,
+            thinking="狼群投票汇总",
+            target_id=target or 0,
+            target_name=f"{target}号玩家" if target else "",
+            extra={
+                "actor_role": "狼群",
+                "proposals": proposal_summary,
+            },
+        ))
         if target is not None:
             game.apply_night_kill(target)
         # 狼刀目标属狼人私密信息：只记入 game 状态，不进 full_record（防泄漏）
@@ -228,6 +286,20 @@ class GameDirector:
                     div_target = await self._ai_decide(player, "预言家查验")
                 else:
                     div_target = await self._human_act(player, "预言家查验")
+                # 上帝视角日志：查验决策
+                thinking = game.decision_thinking.get(player.player_id, "")
+                if div_target:
+                    await self._record_decision(self._make_decision_log(
+                        day=game.day, phase="夜晚",
+                        kind="divine",
+                        actor=player,
+                        thinking=thinking,
+                        target_id=div_target,
+                        target_name=f"{div_target}号玩家",
+                        extra={
+                            "result": "狼人" if is_wolf(game.players[div_target].role) else "好人",
+                        },
+                    ))
                 if div_target and divine_valid(game, player.player_id, div_target):
                     game.apply_divine(player.player_id, div_target)
                     game.full_record.append({
@@ -260,6 +332,17 @@ class GameDirector:
                     guard_target = await self._ai_decide(player, "守卫守护")
                 else:
                     guard_target = await self._human_act(player, "守卫守护")
+                # 上帝视角日志：守卫守护决策
+                thinking = game.decision_thinking.get(player.player_id, "")
+                if guard_target:
+                    await self._record_decision(self._make_decision_log(
+                        day=game.day, phase="夜晚",
+                        kind="guard",
+                        actor=player,
+                        thinking=thinking,
+                        target_id=guard_target,
+                        target_name=f"{guard_target}号玩家",
+                    ))
                 if guard_target and guard_valid(game, player.player_id, guard_target):
                     game.apply_guard(player.player_id, guard_target)
                     await self._send(player.player_id, {
@@ -292,6 +375,10 @@ class GameDirector:
             "narrator_text": text,
         })
 
+        # 死亡瞬间补发上帝视角历史（只对新死者；_notified_dead 去重）
+        if died:
+            await self._notify_newly_dead(died)
+
         # 6. 猎人被狼杀可开枪
         await self._check_hunter_shoot(died)
 
@@ -313,6 +400,17 @@ class GameDirector:
                 save = await self._ai_decide(witch, "女巫救人")
             else:
                 save = await self._human_act(witch, "女巫救人")
+            # 上帝视角日志：女巫救人决策
+            thinking = game.decision_thinking.get(witch.player_id, "")
+            await self._record_decision(self._make_decision_log(
+                day=game.day, phase="夜晚",
+                kind="witch_save",
+                actor=witch,
+                thinking=thinking,
+                target_id=game.dead_tonight[0] if game.dead_tonight else 0,
+                target_name=f"{game.dead_tonight[0]}号玩家" if game.dead_tonight else "",
+                extra={"decision_text": "使用解药救人" if save else "不使用解药"},
+            ))
             if save:
                 game.apply_witch_save()
                 await self._send(witch.player_id, {
@@ -326,6 +424,18 @@ class GameDirector:
                 poison_target = await self._ai_decide(witch, "女巫毒人")
             else:
                 poison_target = await self._human_act(witch, "女巫毒人")
+            # 上帝视角日志：女巫毒人决策
+            thinking = game.decision_thinking.get(witch.player_id, "")
+            if poison_target:
+                await self._record_decision(self._make_decision_log(
+                    day=game.day, phase="夜晚",
+                    kind="witch_poison",
+                    actor=witch,
+                    thinking=thinking,
+                    target_id=poison_target,
+                    target_name=f"{poison_target}号玩家",
+                    extra={"decision_text": "使用毒药"},
+                ))
             if poison_target and witch_can_poison(game, witch.player_id, poison_target):
                 game.apply_witch_poison(poison_target)
                 await self._send(witch.player_id, {
@@ -346,6 +456,18 @@ class GameDirector:
                     shoot_target = await self._ai_decide(player, "猎人开枪")
                 else:
                     shoot_target = await self._human_act(player, "猎人开枪")
+                # 上帝视角日志：猎人开枪决策
+                thinking = game.decision_thinking.get(player.player_id, "")
+                if shoot_target:
+                    await self._record_decision(self._make_decision_log(
+                        day=game.day, phase="夜晚",
+                        kind="hunter_shoot",
+                        actor=player,
+                        thinking=thinking,
+                        target_id=shoot_target,
+                        target_name=f"{shoot_target}号玩家",
+                        extra={"trigger": f"{pid}号玩家死亡触发"},
+                    ))
                 if shoot_target and valid_target(game, shoot_target):
                     player.shot_used = True
                     game.kill(shoot_target, died_by="枪击")
@@ -356,6 +478,8 @@ class GameDirector:
                         "target_id": shoot_target,
                         "narrator_text": f"猎人开枪带走了 {shoot_target}号玩家",
                     })
+                    # 猎人开枪致死的玩家也需要补发上帝视角历史
+                    await self._notify_newly_dead([shoot_target])
                 if game.check_winner():
                     return
 
@@ -457,6 +581,16 @@ class GameDirector:
                 "voter_id": player.player_id,
                 "target_id": target,
             })
+            # 上帝视角日志：每位投票者的思考 + 票型
+            thinking = game.vote_thinking.get(player.player_id, "")
+            await self._record_decision(self._make_decision_log(
+                day=game.day, phase="投票",
+                kind="vote",
+                actor=player,
+                thinking=thinking,
+                target_id=target,
+                target_name=f"{target}号玩家" if target else "弃权",
+            ))
         eliminated = tally_votes(game.vote_results)
         if eliminated is not None:
             game.execute(eliminated)
@@ -503,6 +637,9 @@ class GameDirector:
             "vote_breakdown": vote_breakdown,
             "vote_counts": {str(k): v for k, v in vote_counts.items()},
         })
+        # 白天放逐致死的玩家需要补发上帝视角历史
+        if eliminated is not None:
+            await self._notify_newly_dead([eliminated])
         # 猎人被放逐可开枪
         if eliminated is not None and game.players[eliminated].role == "猎人" and hunter_can_shoot(game, eliminated):
             await self._check_hunter_shoot([eliminated])
@@ -610,3 +747,70 @@ class GameDirector:
     async def _send(self, player_id: int, msg: dict):
         """定向发送（仅该玩家可见）。"""
         await self.broadcast(self.room.code, msg, [player_id])
+
+    # ---------- 上帝视角（死亡玩家全视角） ----------
+
+    def _dead_player_ids(self) -> list[int]:
+        """当前已死亡玩家 id 列表（用于决策日志定向广播）。"""
+        if not self.game:
+            return []
+        return [pid for pid, p in self.game.players.items() if not p.alive]
+
+    def _make_decision_log(self, *, day: int, phase: str, kind: str,
+                            actor: GamePlayer | None = None,
+                            thinking: str = "",
+                            target_id: int = 0,
+                            target_name: str = "",
+                            extra: dict | None = None) -> dict:
+        """构造一条上帝视角日志（不含发送动作）。"""
+        log = {
+            "day": day,
+            "phase": phase,
+            "kind": kind,
+            "kind_label": DECISION_KIND_LABELS.get(kind, kind),
+            "thinking": thinking,
+            "decision_target_id": target_id,
+            "decision_target_name": target_name or (f"{target_id}号玩家" if target_id else ""),
+            "ts": time.time(),
+        }
+        if actor is not None:
+            log["actor_id"] = actor.player_id
+            log["actor_role"] = actor.role
+            log["actor_nickname"] = actor.nickname
+        if extra:
+            log.update(extra)
+        return log
+
+    async def _record_decision(self, log_entry: dict):
+        """记录一条决策日志 + 实时推送给所有已死亡玩家（活人永不接收）。"""
+        self.decision_logs.append(log_entry)
+        dead_ids = self._dead_player_ids()
+        if dead_ids:
+            await self.broadcast(self.room.code, {
+                "type": "decision_log",
+                "log": log_entry,
+            }, only=dead_ids)
+
+    async def _send_godview_history(self, player_id: int):
+        """向刚死亡的玩家一次性补发所有历史日志（含思考 / CoT）。"""
+        if not self.decision_logs:
+            return
+        await self._send(player_id, {
+            "type": "decision_log_history",
+            "logs": list(self.decision_logs),
+        })
+
+    async def _notify_newly_dead(self, newly_dead: list[int]):
+        """玩家死亡瞬间：补发上帝视角历史 + 推送 you_died。
+
+        每个玩家只通知一次（用 _notified_dead 集合去重）。
+        """
+        for pid in newly_dead:
+            if pid in self._notified_dead:
+                continue
+            self._notified_dead.add(pid)
+            await self._send_godview_history(pid)
+            await self._send(pid, {
+                "type": "you_died",
+                "player_id": pid,
+            })

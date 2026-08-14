@@ -83,6 +83,11 @@ function app() {
     fullRecord: [],
     showFinalRoles: false,
 
+    // ===== 上帝视角（死亡玩家全视角） =====
+    iAmDead: false,
+    decisionLogs: [],
+    godViewExpanded: {},  // 日志卡片折叠状态：{logId: bool}
+
     cardX: 0,
     cardY: 0,
 
@@ -184,6 +189,9 @@ function app() {
       this._stickBottom = true;
       this.phase = "夜晚";
       this.game.day = 1;
+      this.iAmDead = false;
+      this.decisionLogs = [];
+      this.godViewExpanded = {};
       this.updateDayNight();
     },
 
@@ -270,6 +278,9 @@ function app() {
           this._rolesByPlayer = {};
           this.speakingNow = 0;
           this.voteStatus = "";
+          this.iAmDead = false;
+          this.decisionLogs = [];
+          this.godViewExpanded = {};
           this._recomputeAlive();
           this._addHistory({ kind: "phase", phase: "夜晚", day: 1 });
           this.updateDayNight();
@@ -377,6 +388,28 @@ function app() {
           if (msg.target_id) {
             this._addDead([msg.target_id]);
             this._recomputeAlive();
+          }
+          break;
+        }
+        case "you_died": {
+          // 后端确认我已死：激活上帝视角 HUD
+          if (msg.player_id === this.myId && !this.iAmDead) {
+            this.iAmDead = true;
+          }
+          break;
+        }
+        case "decision_log": {
+          // 实时推送单条决策日志（仅死亡玩家接收）
+          if (msg.log) {
+            this.decisionLogs.push(msg.log);
+          }
+          break;
+        }
+        case "decision_log_history": {
+          // 死亡瞬间一次性补发的全部历史
+          if (Array.isArray(msg.logs)) {
+            // 用替换而非追加，避免与快照里的决策日志重复
+            this.decisionLogs = msg.logs.slice();
           }
           break;
         }
@@ -600,6 +633,10 @@ function app() {
       for (const s of snap.speeches || []) {
         this._addHistory({ kind: "speech", day: snap.day, phase: snap.phase, player_id: s.player_id, text: s.text });
       }
+      // 重连时同步上帝视角状态（已死亡玩家会附带决策日志）
+      this.iAmDead = !snap.alive;
+      this.decisionLogs = Array.isArray(snap.decision_logs) ? snap.decision_logs.slice() : [];
+      this.godViewExpanded = {};
       this._recomputeAlive();
       if (snap.pending_action) {
         const msg = { player_id: this.myId, action: snap.pending_action };
@@ -701,6 +738,104 @@ function app() {
     // ---------- 历史侧栏 ----------
     _addHistory(ev) {
       this.speechHistory.push({ ...ev, ts: Date.now() });
+    },
+
+    // ---------- 上帝视角（死亡玩家全视角） ----------
+
+    godViewLogsByDay() {
+      const map = new Map();
+      for (const log of this.decisionLogs || []) {
+        const d = log.day || 0;
+        if (!map.has(d)) map.set(d, { day: d, logs: [] });
+        map.get(d).logs.push(log);
+      }
+      const groups = [...map.values()].sort((a, b) => a.day - b.day);
+      for (const g of groups) {
+        g.logs.sort((a, b) => (a.ts || 0) - (b.ts || 0));
+      }
+      return groups;
+    },
+
+    godViewLogsByPhase(dayGroup) {
+      const map = new Map();
+      const order = ["夜晚", "白天发言", "投票"];
+      for (const log of dayGroup.logs) {
+        const key = log.phase || "其他";
+        if (!map.has(key)) map.set(key, []);
+        map.get(key).push(log);
+      }
+      // 固定阶段顺序输出
+      const result = [];
+      for (const phase of order) {
+        if (map.has(phase)) {
+          result.push({ phase, logs: map.get(phase) });
+          map.delete(phase);
+        }
+      }
+      for (const [phase, logs] of map) result.push({ phase, logs });
+      return result;
+    },
+
+    godViewLogKey(log, index) {
+      return `${log.day}-${log.kind}-${log.actor_id || "sys"}-${index}`;
+    },
+
+    godViewIsExpanded(log, index) {
+      const key = this.godViewLogKey(log, index);
+      if (this.godViewExpanded[key] === undefined) {
+        // 投票思考默认折叠（短），狼杀/查验/守卫/猎人默认展开（关键）
+        return ["wolf_proposal", "wolf_consensus", "divine", "witch_poison", "guard", "hunter_shoot"].includes(log.kind);
+      }
+      return this.godViewExpanded[key];
+    },
+
+    toggleGodViewLog(log, index) {
+      const key = this.godViewLogKey(log, index);
+      this.godViewExpanded[key] = !this.godViewIsExpanded(log, index);
+    },
+
+    godViewKindClass(kind) {
+      const map = {
+        wolf_proposal: "gv-wolf",
+        wolf_consensus: "gv-wolf",
+        divine: "gv-divine",
+        witch_save: "gv-witch",
+        witch_poison: "gv-witch",
+        guard: "gv-guard",
+        hunter_shoot: "gv-hunter",
+        vote: "gv-vote",
+      };
+      return map[kind] || "gv-default";
+    },
+
+    godViewActorLabel(log) {
+      if (log.actor_nickname) return log.actor_nickname;
+      if (log.actor_role === "狼群") return "狼群";
+      return "系统";
+    },
+
+    godViewDecisionLabel(log) {
+      const target = log.decision_target_name || (log.decision_target_id ? `${log.decision_target_id}号玩家` : "");
+      switch (log.kind) {
+        case "wolf_proposal":
+          return target ? `提议击杀 ${target}` : "提议击杀（无目标）";
+        case "wolf_consensus":
+          return target ? `狼群决定击杀 ${target}` : "狼群决定（无目标）";
+        case "divine":
+          return target ? `查验 ${target}（${log.result || ""}）` : "未查验";
+        case "witch_save":
+          return log.decision_text || (target ? `对 ${target} ${log.decision_text || ""}` : "未行动");
+        case "witch_poison":
+          return target ? `毒杀 ${target}` : "未毒人";
+        case "guard":
+          return target ? `守护 ${target}` : "未守护";
+        case "hunter_shoot":
+          return target ? `开枪带走 ${target}` : "未开枪";
+        case "vote":
+          return target ? `投票给 ${target}` : "弃权";
+        default:
+          return target || "无决策";
+      }
     },
 
     historyGroups() {
@@ -807,8 +942,17 @@ function app() {
 
     _addDead(ids) {
       this._deadIds = this._deadIds || [];
+      const wasDead = this.iAmDead;
+      let newlyDeadMe = false;
       for (const id of ids) {
-        if (!this._deadIds.includes(id)) this._deadIds.push(id);
+        if (!this._deadIds.includes(id)) {
+          this._deadIds.push(id);
+          if (id === this.myId) newlyDeadMe = true;
+        }
+      }
+      // 自己死亡 → 激活上帝视角 HUD（后端会通过 decision_log_history 补发历史）
+      if (newlyDeadMe && !wasDead) {
+        this.iAmDead = true;
       }
     },
 

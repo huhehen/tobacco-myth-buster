@@ -1,6 +1,9 @@
 """AI 发言驱动器：流式生成发言 → 广播文本增量 → 识别结束标记 → 推进。
 
-通过 LLMPool 串行队列保证同一时刻只有一个 LLM 调用。
+流式 TTS 设计（参考 Verbal Werewolf arXiv 2506.00160）：
+- LLM 逐字输出时，检测到句末标点立即触发 TTS
+- TTS 生成音频期间，LLM 继续产出后续文本
+- 两者并行，首包延迟降至 0.5-1s
 """
 import asyncio
 import random
@@ -79,14 +82,42 @@ class LlmSpeaker:
             session.messages.append({"role": "user", "content": "请开始你的发言。"})
 
         async def stream_call():
-            """普通 async 函数（非生成器）：在 worker 中迭代生成器并回调。"""
+            """普通 async 函数（非生成器）：在 worker 中迭代生成器并回调。
+
+            流式 TTS 集成：LLM 输出时边检测句末标点边触发 TTS，实现并行流水线。
+            """
             collected = ""
+            pending_tts = ""  # TTS 缓冲文本
+
             async for delta in session.client.chat_stream(session.messages):
                 collected += delta
+                # 实时广播文本增量
                 if on_streaming_delta:
                     await on_streaming_delta(player.player_id, delta, False)
                 if self.on_delta:
                     await self.on_delta(player.player_id, delta)
+
+                # 流式 TTS：累积文本，检测到句末标点立即触发
+                pending_tts += delta
+                if self.on_tts and any(m in pending_tts for m in ("。", "！", "？", "\n")):
+                    # 提取完整句段触发 TTS
+                    sentences = re.split(r'([。！？；\n])', pending_tts)
+                    complete_idx = 0
+                    for i, part in enumerate(sentences):
+                        if i + 1 < len(sentences) and sentences[i + 1]:
+                            complete_idx = i + 2
+                        else:
+                            break
+                    if complete_idx > 0:
+                        segment = "".join(sentences[:complete_idx]).strip()
+                        if segment:
+                            await self.on_tts(player.player_id, segment)
+                            pending_tts = "".join(sentences[complete_idx:])
+
+            # 流结束后触发剩余文本的 TTS
+            if self.on_tts and pending_tts.strip():
+                await self.on_tts(player.player_id, pending_tts.strip())
+
             # 流结束再回调一次 final，让前端停止打字光标
             if on_streaming_delta:
                 await on_streaming_delta(player.player_id, "", True)
@@ -111,11 +142,18 @@ class LlmSpeaker:
     # ---------- 夜晚行动/投票决策 ----------
 
     async def decide(self, game: Game, player: GamePlayer, action: str):
-        """决策：狼人提议/预言家查验/女巫救人/毒人/守卫守护/猎人开枪/投票。"""
+        """决策：狼人提议/预言家查验/女巫救人/毒人/守卫守护/猎人开枪/投票。
+
+        思考文本会写入 game.decision_thinking（夜间行动）或 game.vote_thinking（投票），
+        供 director 在死亡玩家的"上帝视角"日志里展示。
+        """
         if action in ("狼人提议", "预言家查验", "女巫毒人", "守卫守护", "猎人开枪", "投票"):
             return await self._decide_target(game, player, action)
         if action == "女巫救人":
-            return await self._decide_save(game, player)
+            save, thinking = await self._decide_save(game, player)
+            if thinking:
+                game.decision_thinking[player.player_id] = thinking
+            return save
         return False
 
     async def _decide_target(self, game: Game, player: GamePlayer, action: str) -> int:
@@ -128,7 +166,11 @@ class LlmSpeaker:
             speeches = list(game.speeches_of_day)
             # 计算投票位置（在存活玩家中的顺序）
             alive_ids = sorted(alive)
-            vote_position = f"{alive_ids.index(player.player_id) + 1}/{len(alive_ids)}"
+            # 兜底：如果 player_id 不在存活列表中（已被投票出局），使用第一个位置
+            if player.player_id in alive_ids:
+                vote_position = f"{alive_ids.index(player.player_id) + 1}/{len(alive_ids)}"
+            else:
+                vote_position = f"1/{len(alive_ids)}"
             prompt = build_vote_prompt(game, player, speeches, vote_position)
             messages = [{"role": "system", "content": prompt}, {"role": "user", "content": "请投票。"}]
             try:
@@ -162,19 +204,26 @@ class LlmSpeaker:
             pass
         return random.choice(alive)
 
-    async def _decide_save(self, game: Game, player: GamePlayer) -> bool:
-        """女巫救人决策。"""
+    async def _decide_save(self, game: Game, player: GamePlayer) -> tuple[bool, str]:
+        """女巫救人决策。返回 (是否救人, 思考文本)。
+
+        思考文本写入 game.decision_thinking，供上帝视角日志展示。
+        """
         prompt = (
             f"你是狼人杀里 {player.player_id} 号玩家，女巫。"
             f"今晚 {game.dead_tonight[0]}号被狼人杀死。"
-            "你有一瓶解药（仅一次），是否使用？回答「救」或「不救」。"
+            "你有一瓶解药（仅一次），是否使用？\n"
+            "请先简要说明思考（为什么救/不救，1-2 句话），"
+            "然后在最后一行单独回答「救」或「不救」。"
         )
         messages = [{"role": "system", "content": prompt}, {"role": "user", "content": "请回答。"}]
         try:
-            result = await self.pool.submit(self._get_session(game, player).client.chat, messages, 0.3)
-            return "救" in result and "不救" not in result
+            result = await self.pool.submit(self._get_session(game, player).client.chat, messages, 0.5)
+            decision = "救" in result and "不救" not in result
+            thinking = clean_thinking(result)
+            return decision, thinking
         except Exception:
-            return True
+            return True, ""
 
     @staticmethod
     def _parse_vote(result: str, alive_ids: list[int]) -> int | None:
