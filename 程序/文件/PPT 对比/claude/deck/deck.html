@@ -558,7 +558,6 @@ body::before {
     slides.forEach((s, i) => s.classList.toggle('active', i === idx));
     cur.textContent = String(idx + 1).padStart(2, '0');
     prevBtn.disabled = idx === 0;
-    nextBtn.disabled = idx === total - 1;
     progress.style.width = ((idx + 1) / total * 100) + '%';
     document.querySelectorAll('.grid .thumb').forEach((t, i) => t.classList.toggle('active', i === idx));
   }
