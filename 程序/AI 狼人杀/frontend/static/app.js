@@ -82,6 +82,12 @@ function app() {
     aliveSet: new Set(),
     fullRecord: [],
     showFinalRoles: false,
+    _scrollPending: false,
+    _historyCache: null,
+    _historyCacheLen: -1,
+    _godViewCache: null,
+    _godViewCacheLen: -1,
+    _votesToday: 0,
 
     // ===== 上帝视角（死亡玩家全视角） =====
     iAmDead: false,
@@ -743,6 +749,10 @@ function app() {
     // ---------- 上帝视角（死亡玩家全视角） ----------
 
     godViewLogsByDay() {
+      const len = (this.decisionLogs || []).length;
+      if (this._godViewCache && this._godViewCacheLen === len) {
+        return this._godViewCache;
+      }
       const map = new Map();
       for (const log of this.decisionLogs || []) {
         const d = log.day || 0;
@@ -753,6 +763,8 @@ function app() {
       for (const g of groups) {
         g.logs.sort((a, b) => (a.ts || 0) - (b.ts || 0));
       }
+      this._godViewCache = groups;
+      this._godViewCacheLen = len;
       return groups;
     },
 
@@ -839,6 +851,10 @@ function app() {
     },
 
     historyGroups() {
+      const len = this.speechHistory.length;
+      if (this._historyCache && this._historyCacheLen === len) {
+        return this._historyCache;
+      }
       const map = new Map();
       for (const ev of this.speechHistory) {
         const d = ev.day || 0;
@@ -862,6 +878,8 @@ function app() {
           }
         }
       }
+      this._historyCache = groups;
+      this._historyCacheLen = len;
       return groups;
     },
 
@@ -981,8 +999,10 @@ function app() {
     },
 
     _scrollToBottom() {
-      if (!this._stickBottom) return;
-      this.$nextTick(() => {
+      if (!this._stickBottom || this._scrollPending) return;
+      this._scrollPending = true;
+      requestAnimationFrame(() => {
+        this._scrollPending = false;
         const el = this.$refs.speeches;
         if (el) el.scrollTop = el.scrollHeight;
       });

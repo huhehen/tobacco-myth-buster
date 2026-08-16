@@ -38,8 +38,9 @@
   {"type": "error", "message": str}
 """
 import asyncio
+from collections import deque
 import json
-from typing import Optional
+from typing import Optional, Protocol
 
 from fastapi import WebSocket
 
@@ -48,6 +49,8 @@ from .manager import Room, RoomManager
 
 # 单条 WebSocket 发送超时（秒）：防慢客户端背压冻结游戏循环
 SEND_TIMEOUT = 8
+# 每个连接最多积压的非最终流式片段数；旧片段可丢，最终片段和其他消息不可丢。
+MAX_PENDING_SPEECH_DELTAS = 64
 
 
 def validate_nickname(nickname: str) -> bool:
@@ -57,13 +60,18 @@ def validate_nickname(nickname: str) -> bool:
     return not any(c in nickname for c in "\n\r\"'<>")
 
 
+class _SendableWebSocket(Protocol):
+    async def send_text(self, data: str) -> None: ...
+
+
 class ConnectionManager:
     """管理所有 WebSocket 连接与房间绑定。"""
 
     def __init__(self, room_manager: RoomManager):
         self.room_manager = room_manager
         # (room_code, player_id) -> websocket（同一玩家重连时覆盖旧连接）
-        self.connections: dict[tuple, WebSocket] = {}
+        self.connections: dict[tuple, _SendableWebSocket] = {}
+        self._outbound: dict[tuple, _OutboundQueue] = {}
 
     def key(self, room_code: str, player_id: int) -> tuple:
         return (room_code, player_id)
@@ -71,12 +79,24 @@ class ConnectionManager:
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
 
+    def register(self, room_code: str, player_id: int, websocket: _SendableWebSocket):
+        """绑定连接，并为它创建独立、有序的后台发送队列。"""
+        key = self.key(room_code, player_id)
+        previous = self._outbound.pop(key, None)
+        if previous:
+            previous.close()
+        self.connections[key] = websocket
+        self._outbound[key] = _OutboundQueue(websocket)
+
     async def disconnect(self, room_code: str, player_id: int):
         """玩家断开：标记掉线，若游戏进行中则暂停并广播。"""
         key = self.key(room_code, player_id)
         if key not in self.connections:
             return
         self.connections.pop(key, None)
+        outbound = self._outbound.pop(key, None)
+        if outbound:
+            outbound.close()
         room = self.room_manager.get_room(room_code)
         if not room:
             return
@@ -98,36 +118,75 @@ class ConnectionManager:
             })
 
     async def send(self, room_code: str, player_id: int, data: dict):
-        ws = self.connections.get(self.key(room_code, player_id))
-        if ws and ws.client_state.name == "CONNECTED":
-            try:
-                await asyncio.wait_for(
-                    ws.send_text(json.dumps(data, ensure_ascii=False)),
-                    SEND_TIMEOUT,
-                )
-            except Exception:
-                pass
+        outbound = self._outbound.get(self.key(room_code, player_id))
+        if outbound:
+            outbound.enqueue(data)
 
     async def broadcast_room(self, room_code: str, data: dict, only: list[int] | None = None):
         """向房间内已连接玩家并发广播（only 指定玩家时定向发送）。"""
         room = self.room_manager.get_room(room_code)
         if not room:
             return
-        message = json.dumps(data, ensure_ascii=False)
-        tasks = []
         for player_id in room.players:
             if only is not None and player_id not in only:
                 continue
-            ws = self.connections.get(self.key(room_code, player_id))
-            if ws and ws.client_state.name == "CONNECTED":
-                async def _send(ws=ws):
+            outbound = self._outbound.get(self.key(room_code, player_id))
+            if outbound:
+                outbound.enqueue(data)
+
+
+class _OutboundQueue:
+    """单连接 FIFO：慢客户端只能阻塞自己的 worker。"""
+
+    def __init__(self, websocket: _SendableWebSocket):
+        self.websocket = websocket
+        self.pending: deque[dict] = deque()
+        self._wake = asyncio.Event()
+        self._closed = False
+        self._task = asyncio.create_task(self._run())
+
+    def enqueue(self, data: dict):
+        if self._closed:
+            return
+        if data.get("type") == "speech_delta" and not data.get("final"):
+            self._trim_speech_deltas()
+        self.pending.append(data)
+        self._wake.set()
+
+    def _trim_speech_deltas(self):
+        deltas = sum(
+            item.get("type") == "speech_delta" and not item.get("final")
+            for item in self.pending
+        )
+        if deltas < MAX_PENDING_SPEECH_DELTAS:
+            return
+        for item in self.pending:
+            if item.get("type") == "speech_delta" and not item.get("final"):
+                self.pending.remove(item)
+                return
+
+    async def _run(self):
+        try:
+            while True:
+                while self.pending:
+                    data = self.pending.popleft()
                     try:
-                        await asyncio.wait_for(ws.send_text(message), SEND_TIMEOUT)
+                        await asyncio.wait_for(
+                            self.websocket.send_text(json.dumps(data, ensure_ascii=False)),
+                            SEND_TIMEOUT,
+                        )
                     except Exception:
                         pass
-                tasks.append(_send())
-        if tasks:
-            await asyncio.gather(*tasks, return_exceptions=True)
+                self._wake.clear()
+                if self.pending:
+                    self._wake.set()
+                await self._wake.wait()
+        except asyncio.CancelledError:
+            pass
+
+    def close(self):
+        self._closed = True
+        self._task.cancel()
 
 
 class WsRouter:
@@ -174,13 +233,12 @@ class WsRouter:
                 player_count = 9
             room = self.rooms.create_room(nickname, player_count)
             player = room.players[room.host_player_id]
-            key = self.cm.key(room.code, player.player_id)
-            self.cm.connections[key] = websocket
             await websocket.send_text(json.dumps({
                 "type": "room_joined",
                 "player_id": player.player_id,
                 "room": self.rooms.room_snapshot(room),
             }, ensure_ascii=False))
+            self.cm.register(room.code, player.player_id, websocket)
             return (room.code, player.player_id)
 
         if msg_type == "join_room":
@@ -226,14 +284,13 @@ class WsRouter:
                         {"type": "error", "message": f'该房间为私密房间，昵称"{nickname}"未被房主批准，无法加入'}, ensure_ascii=False))
                         return current
                 player = self.rooms.add_player(room, nickname, is_human=True)
-            key = self.cm.key(room.code, player.player_id)
-            self.cm.connections[key] = websocket
             await websocket.send_text(json.dumps({
                 "type": "room_joined",
                 "player_id": player.player_id,
                 "room": self.rooms.room_snapshot(room),
                 **({"snapshot": snapshot} if snapshot else {}),
             }, ensure_ascii=False))
+            self.cm.register(room.code, player.player_id, websocket)
             await self.cm.broadcast_room(room.code, {
                 "type": "room_players",
                 "room": self.rooms.room_snapshot(room),
@@ -451,3 +508,6 @@ class WsRouter:
             room.paused = False
             room.paused_reason = ""
             room.game_started = False
+            room.director = None
+            if self.llm_pool is not None:
+                self.llm_pool.cleanup_room(room.code)
