@@ -3,19 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>驳斥"烟草纳税供养航母"说法</title>
+    <title>驳斥"烟草纳税供养航母"说法 - 数据调研报告</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #FFFFFF;
+            --bg: #F5F5F5;
+            --card-bg: #FFFFFF;
             --ink: #0A0A0A;
             --ink-2: #1F1F1F;
-            --muted: #737373;
-            --muted-2: #A3A3A3;
-            --line: #E5E5E5;
-            --grid: rgba(10, 10, 10, 0.04);
+            --muted: #6B7280;
+            --muted-2: #9CA3AF;
+            --line: #E5E7EB;
+            --danger: #DC2626;
+            --warning: #D97706;
+            --success: #16A34A;
             --font-display: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
             --font-body: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
             --font-mono: 'JetBrains Mono', ui-monospace, monospace;
@@ -31,546 +34,719 @@
             font-family: var(--font-body);
             background: var(--bg);
             color: var(--ink);
-            line-height: 1.6;
-            overflow-x: hidden;
+            line-height: 1.7;
         }
         
-        .deck {
-            max-width: 1200px;
+        .container {
+            max-width: 900px;
             margin: 0 auto;
-            padding: 40px 20px;
+            padding: 60px 24px;
         }
         
-        .slide {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 60px 0;
-            border-bottom: 1px solid var(--line);
-            position: relative;
-        }
-        
-        .slide:last-child {
-            border-bottom: none;
-        }
-        
-        /* Cover Slide */
-        .cover {
+        /* Header */
+        header {
             text-align: center;
-            padding: 80px 40px;
-        }
-        
-        .cover h1 {
-            font-size: clamp(2rem, 5vw, 4rem);
-            font-weight: 700;
-            line-height: 1.2;
-            margin-bottom: 30px;
-            letter-spacing: -0.02em;
-        }
-        
-        .cover .subtitle {
-            font-size: clamp(1.2rem, 2.5vw, 1.8rem);
-            color: var(--muted);
-            font-weight: 400;
             margin-bottom: 50px;
         }
         
-        .cover .meta {
-            font-size: 0.9rem;
-            color: var(--muted-2);
-            font-family: var(--font-mono);
-        }
-        
-        /* Section Divider */
-        .section {
-            text-align: center;
-            padding: 100px 40px;
-        }
-        
-        .section .numeral {
-            font-size: clamp(6rem, 15vw, 12rem);
+        h1 {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
             font-weight: 700;
-            color: var(--line);
-            line-height: 1;
-            margin-bottom: 20px;
-        }
-        
-        .section h2 {
-            font-size: clamp(1.5rem, 3vw, 2.5rem);
-            font-weight: 500;
-        }
-        
-        /* Content Slides */
-        .slide h3 {
-            font-size: clamp(1.5rem, 3vw, 2.2rem);
-            font-weight: 700;
-            margin-bottom: 40px;
+            margin-bottom: 16px;
             line-height: 1.3;
         }
         
-        /* Stats Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 30px;
-            margin: 40px 0;
-        }
-        
-        .stat-card {
-            padding: 30px;
-            border: 1px solid var(--line);
-            border-radius: 4px;
-        }
-        
-        .stat-card .number {
-            font-size: clamp(2rem, 4vw, 3rem);
-            font-weight: 700;
-            color: var(--ink);
-            margin-bottom: 10px;
-        }
-        
-        .stat-card .label {
-            font-size: 0.95rem;
+        .subtitle {
+            font-size: 1.1rem;
             color: var(--muted);
-            margin-bottom: 8px;
+            margin-bottom: 24px;
         }
         
-        .stat-card .source {
+        .badge {
+            display: inline-block;
+            padding: 6px 14px;
+            background: var(--danger);
+            color: white;
+            border-radius: 4px;
             font-size: 0.8rem;
-            color: var(--muted-2);
+            font-weight: 500;
+        }
+        
+        /* Section */
+        section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            border: 1px solid var(--line);
+        }
+        
+        h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--line);
+        }
+        
+        h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 24px 0 12px;
+            color: var(--ink-2);
+        }
+        
+        p {
+            margin-bottom: 12px;
+            color: var(--ink-2);
+        }
+        
+        /* Summary Box */
+        .summary-box {
+            background: linear-gradient(135deg, #FEF2F2 0%, #FECACA 100%);
+            border-left: 4px solid var(--danger);
+            padding: 20px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 20px;
+        }
+        
+        .summary-box h3 {
+            color: var(--danger);
+            margin-top: 0;
+        }
+        
+        .highlight-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--danger);
             font-family: var(--font-mono);
         }
         
-        /* Compare Table */
-        .compare-table {
+        /* Tables */
+        table {
             width: 100%;
             border-collapse: collapse;
-            margin: 40px 0;
+            margin: 20px 0;
+            font-size: 0.9rem;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--line);
         }
         
-        .compare-table th,
-        .compare-table td {
-            padding: 20px;
+        th, td {
+            padding: 12px 16px;
             text-align: left;
             border-bottom: 1px solid var(--line);
         }
         
-        .compare-table th {
-            font-weight: 500;
+        th {
+            font-weight: 600;
             color: var(--muted);
-            font-size: 0.9rem;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: #F9FAFB;
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        tr:hover {
+            background: #F9FAFB;
+        }
+        
+        .number {
+            font-family: var(--font-mono);
+            font-weight: 500;
+        }
+        
+        .positive {
+            color: var(--success);
+            font-weight: 600;
+        }
+        
+        .negative {
+            color: var(--danger);
+            font-weight: 600;
+        }
+        
+        .warning {
+            color: var(--warning);
+            font-weight: 600;
+        }
+        
+        /* Cards */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 20px 0;
+        }
+        
+        .card {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 16px;
+            background: #FAFAFA;
+        }
+        
+        .card-header {
+            font-size: 0.75rem;
+            color: var(--muted);
+            margin-bottom: 8px;
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
         
-        .compare-table td {
-            font-size: 1.1rem;
+        .card-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            margin-bottom: 6px;
         }
         
-        .compare-table .highlight {
-            background: rgba(10, 10, 10, 0.03);
+        .card-value.danger {
+            color: var(--danger);
         }
         
-        .compare-table .positive {
-            color: #166534;
-            font-weight: 500;
+        .card-value.success {
+            color: var(--success);
         }
         
-        .compare-table .negative {
-            color: #991b1b;
-            font-weight: 500;
+        .card-value.warning {
+            color: var(--warning);
         }
         
-        /* Split Layout */
-        .split {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 60px;
-            align-items: center;
+        .card-footer {
+            font-size: 0.8rem;
+            color: var(--muted-2);
+            line-height: 1.4;
         }
         
-        @media (max-width: 768px) {
-            .split {
-                grid-template-columns: 1fr;
-                gap: 40px;
-            }
+        /* Images */
+        .image-container {
+            margin: 24px 0;
+            text-align: center;
         }
         
-        .split .content h3 {
-            margin-bottom: 20px;
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            border: 1px solid var(--line);
         }
         
-        .split .content p {
+        .image-caption {
+            font-size: 0.85rem;
             color: var(--muted);
-            margin-bottom: 20px;
-            font-size: 1.05rem;
+            margin-top: 8px;
+            font-style: italic;
         }
         
-        /* Process Flow */
-        .process {
+        /* Steps */
+        .steps {
             display: flex;
             flex-direction: column;
-            gap: 30px;
-            margin: 40px 0;
+            gap: 16px;
+            margin: 20px 0;
         }
         
-        .process-step {
+        .step {
             display: flex;
-            gap: 30px;
-            align-items: flex-start;
+            gap: 16px;
+            padding: 16px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #FAFAFA;
         }
         
-        .process-step .num {
-            font-size: 1.5rem;
+        .step-num {
+            font-size: 1.2rem;
             font-weight: 700;
             color: var(--line);
-            min-width: 50px;
+            min-width: 32px;
         }
         
-        .process-step .text {
-            flex: 1;
+        .step-content h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--ink);
         }
         
-        .process-step .text h4 {
-            font-size: 1.2rem;
-            font-weight: 500;
-            margin-bottom: 8px;
-        }
-        
-        .process-step .text p {
+        .step-content p {
             color: var(--muted);
-            font-size: 0.95rem;
-        }
-        
-        /* Timeline */
-        .timeline {
-            margin: 40px 0;
-        }
-        
-        .timeline-item {
-            display: grid;
-            grid-template-columns: 120px 1fr;
-            gap: 30px;
-            padding: 25px 0;
-            border-bottom: 1px solid var(--line);
-        }
-        
-        .timeline-item:last-child {
-            border-bottom: none;
-        }
-        
-        .timeline-item .year {
-            font-family: var(--font-mono);
             font-size: 0.9rem;
+            margin-bottom: 0;
+        }
+        
+        /* Citation */
+        .citation {
+            background: #F3F4F6;
+            border-left: 3px solid var(--muted-2);
+            padding: 12px 16px;
+            margin: 16px 0;
+            font-size: 0.85rem;
             color: var(--muted);
+            border-radius: 0 4px 4px 0;
         }
         
-        .timeline-item .content h4 {
-            font-size: 1.1rem;
-            font-weight: 500;
-            margin-bottom: 5px;
+        .citation strong {
+            color: var(--ink);
         }
         
-        .timeline-item .content p {
-            color: var(--muted);
-            font-size: 0.95rem;
-        }
-        
-        /* Closing */
-        .closing {
+        /* CTA */
+        .cta-section {
+            background: var(--ink);
+            color: white;
+            padding: 32px;
+            border-radius: 12px;
             text-align: center;
-            padding: 100px 40px;
+            margin-top: 32px;
         }
         
-        .closing h2 {
-            font-size: clamp(2rem, 5vw, 3.5rem);
-            font-weight: 700;
-            margin-bottom: 30px;
-            line-height: 1.2;
+        .cta-section h2 {
+            color: white;
+            border: none;
+            margin-bottom: 16px;
+            font-size: 1.6rem;
         }
         
-        .closing .cta {
-            font-size: 1.2rem;
-            color: var(--muted);
-            margin-bottom: 40px;
+        .cta-section p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 24px;
         }
         
-        .closing .action-list {
+        .action-list {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 20px;
+            gap: 12px;
             list-style: none;
         }
         
-        .closing .action-list li {
-            padding: 15px 30px;
+        .action-list li {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+        
+        /* Sources */
+        .sources {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 28px;
+            margin-top: 32px;
             border: 1px solid var(--line);
-            border-radius: 4px;
-            font-size: 1rem;
         }
         
-        /* Keyboard Nav Hint */
-        .nav-hint {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            font-family: var(--font-mono);
-            font-size: 0.8rem;
-            color: var(--muted-2);
+        .sources h3 {
+            font-size: 1.1rem;
+            color: var(--ink);
+            margin-bottom: 16px;
         }
         
-        /* Progress Bar */
-        .progress {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 3px;
-            background: var(--ink);
-            transition: width 0.3s ease;
-            z-index: 100;
+        .sources ol {
+            padding-left: 20px;
+            font-size: 0.82rem;
+            color: var(--muted);
+        }
+        
+        .sources li {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        
+        .sources a {
+            color: var(--danger);
+            text-decoration: none;
+        }
+        
+        .sources a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Responsive */
+        @media (max-width: 640px) {
+            .container {
+                padding: 40px 16px;
+            }
+            
+            section {
+                padding: 20px;
+            }
+            
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            table {
+                font-size: 0.8rem;
+            }
+            
+            th, td {
+                padding: 8px 12px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="progress" id="progress"></div>
-    
-    <div class="deck">
-        <!-- Slide 1: Cover -->
-        <section class="slide cover">
-            <h1>驳斥"烟草纳税供养航母"<br>说法</h1>
-            <p class="subtitle">数据调研与事实澄清</p>
-            <p class="meta">2025年 · 多源交叉验证报告</p>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>驳斥"烟草纳税供养航母"说法</h1>
+            <p class="subtitle">基于权威数据的多源交叉验证调研报告</p>
+            <span class="badge">2025年数据 · 多源验证</span>
+        </header>
+        
+        <!-- Executive Summary -->
+        <section>
+            <div class="summary-box">
+                <h3>核心结论</h3>
+                <p style="font-size: 1.05rem; margin-bottom: 12px;">
+                    烟草行业对国家的财政贡献远小于其造成的健康和经济代价。每收进 <span class="highlight-number">1元</span> 烟草税，社会需付出约 <span class="highlight-number">1.6元</span> 的健康成本。
+                </p>
+                <p style="color: var(--muted); margin-bottom: 0;">
+                    2025年烟草财政总额 15,800亿元 vs 国防预算 18,100亿元——并非专款专用，且净损失达约9,000亿元/年。
+                </p>
+            </div>
         </section>
         
-        <!-- Slide 2: Section 01 -->
-        <section class="slide section">
-            <div class="numeral">01</div>
-            <h2>核心数据对比</h2>
-        </section>
-        
-        <!-- Slide 3: Tax vs Defense -->
-        <section class="slide">
-            <h3>烟草税 vs 国防预算</h3>
-            <table class="compare-table">
+        <!-- Section 1 -->
+        <section>
+            <h2>一、数据对比论述</h2>
+            
+            <h3>1.1 烟草税 vs 国防预算</h3>
+            <table>
                 <thead>
                     <tr>
-                        <th>指标</th>
-                        <th>2024年</th>
-                        <th>2025年</th>
-                        <th>变化</th>
+                        <th>年度</th>
+                        <th>烟草工商税利</th>
+                        <th>烟草财政总额</th>
+                        <th>国防预算支出</th>
+                        <th>占比</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>烟草工商税利</td>
-                        <td>16,008亿元</td>
-                        <td>16,570亿元</td>
-                        <td class="positive">+3.5%</td>
+                        <td>2024年</td>
+                        <td class="number">16,008亿元</td>
+                        <td class="number">15,446亿元</td>
+                        <td class="number">16,652亿元</td>
+                        <td class="warning">92.8%</td>
                     </tr>
                     <tr>
-                        <td>烟草财政总额</td>
-                        <td>15,446亿元</td>
-                        <td>15,800亿元</td>
-                        <td class="positive">+2.3%</td>
+                        <td>2025年</td>
+                        <td class="number">16,570亿元</td>
+                        <td class="number">15,800亿元</td>
+                        <td class="number">18,100亿元</td>
+                        <td class="warning">87.3%</td>
                     </tr>
-                    <tr class="highlight">
-                        <td>国防预算支出</td>
-                        <td>16,652亿元</td>
-                        <td>18,100亿元</td>
-                        <td class="positive">+7.2%</td>
-                    </tr>
-                    <tr>
-                        <td>烟草财政占国防比例</td>
-                        <td>92.8%</td>
-                        <td>87.3%</td>
-                        <td class="negative">-5.5pp</td>
+                    <tr style="background: #FEF2F2;">
+                        <td><strong>净损失</strong></td>
+                        <td colspan="3" style="text-align: center;">烟草财政不足以覆盖国防预算缺口</td>
+                        <td class="negative">约9,000亿/年</td>
                     </tr>
                 </tbody>
             </table>
-            <p style="color: var(--muted); margin-top: 30px; font-size: 0.95rem;">
-                数据来源：国家烟草专卖局、财政部年度预算草案
-            </p>
-        </section>
-        
-        <!-- Slide 4: Economic Cost -->
-        <section class="slide">
-            <h3>吸烟的经济成本远超财政贡献</h3>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="number">24,300亿</div>
-                    <div class="label">2020年吸烟经济总成本</div>
-                    <div class="source">《柳叶刀·公共卫生》</div>
+            <p class="citation"><strong>数据来源：</strong>国家烟草专卖局官网公告、财政部年度预算草案、新华社报道</p>
+            
+            <h3>1.2 经济成本 vs 财政收益</h3>
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-header">2020年吸烟经济总成本</div>
+                    <div class="card-value danger">24,300亿</div>
+                    <div class="card-footer">含医疗+生产力损失<br>来源：《柳叶刀·公共卫生》</div>
                 </div>
-                <div class="stat-card">
-                    <div class="number">15,200亿</div>
-                    <div class="label">2020年烟草财政收益</div>
-                    <div class="source">国家烟草专卖局</div>
+                <div class="card">
+                    <div class="card-header">2020年烟草财政收益</div>
+                    <div class="card-value success">15,200亿</div>
+                    <div class="card-footer">税收+利润总和<br>来源：国家烟草专卖局</div>
                 </div>
-                <div class="stat-card">
-                    <div class="number">9,000亿</div>
-                    <div class="label">净经济损失</div>
-                    <div class="source">计算得出</div>
+                <div class="card">
+                    <div class="card-header">净经济损失</div>
+                    <div class="card-value danger">9,000亿</div>
+                    <div class="card-footer">成本-收益差额<br>年均GDP占比2.29%</div>
                 </div>
-                <div class="stat-card">
-                    <div class="number">1:1.6</div>
-                    <div class="label">收益:成本比例</div>
-                    <div class="source">每1元税收带来1.6元损失</div>
+                <div class="card">
+                    <div class="card-header">收益成本比</div>
+                    <div class="card-value warning">1:1.6</div>
+                    <div class="card-footer">每收1元税收<br>社会付出1.6元代价</div>
                 </div>
             </div>
-            <p style="color: var(--muted); margin-top: 30px; font-size: 0.95rem;">
-                经济成本包括直接医疗费用、生产力损失、因病致贫等间接成本
-            </p>
+            
+            <h3>1.3 历年数据趋势</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>年份</th>
+                        <th>工商税利（亿元）</th>
+                        <th>财政总额（亿元）</th>
+                        <th>同比增长</th>
+                        <th>吸烟经济成本（亿元）</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2021年</td>
+                        <td class="number">13,581</td>
+                        <td class="number">12,442</td>
+                        <td class="positive">+6.08%</td>
+                        <td class="number">—</td>
+                    </tr>
+                    <tr>
+                        <td>2022年</td>
+                        <td class="number">14,416</td>
+                        <td class="number">13,188</td>
+                        <td class="positive">+6.1%</td>
+                        <td class="number">—</td>
+                    </tr>
+                    <tr>
+                        <td>2023年</td>
+                        <td class="number">15,089</td>
+                        <td class="number">14,416</td>
+                        <td class="positive">+4.7%</td>
+                        <td class="number">—</td>
+                    </tr>
+                    <tr>
+                        <td>2024年</td>
+                        <td class="number">16,008</td>
+                        <td class="number">15,446</td>
+                        <td class="positive">+5.0%</td>
+                        <td class="number">24,300</td>
+                    </tr>
+                    <tr>
+                        <td>2025年</td>
+                        <td class="number">16,570</td>
+                        <td class="number">15,800</td>
+                        <td class="positive">+3.5%</td>
+                        <td class="number">—</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p class="citation"><strong>数据来源：</strong>国家烟草专卖局年度数据公告（2022-2026年发布）</p>
         </section>
         
-        <!-- Slide 5: Section 02 -->
-        <section class="slide section">
-            <div class="numeral">02</div>
-            <h2>烟民规模与现状</h2>
-        </section>
-        
-        <!-- Slide 6: Smoking Statistics -->
-        <section class="slide">
-            <h3>中国烟草流行现状</h3>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="number">3亿+</div>
-                    <div class="label">烟民总数</div>
-                    <div class="source">中国疾控中心2024年调查</div>
+        <!-- Section 2 -->
+        <section>
+            <h2>二、烟民规模与现状</h2>
+            
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-header">烟民总数</div>
+                    <div class="card-value danger">3亿+</div>
+                    <div class="card-footer">15岁及以上人群<br>来源：中国疾控中心2024年调查</div>
                 </div>
-                <div class="stat-card">
-                    <div class="number">23.2%</div>
-                    <div class="label">15岁+人群吸烟率</div>
-                    <div class="source">较2022年下降0.9pp</div>
+                <div class="card">
+                    <div class="card-header">吸烟率（2024）</div>
+                    <div class="card-value warning">23.2%</div>
+                    <div class="card-footer">较2022年下降0.9pp<br>目标：2030年降至20%以下</div>
                 </div>
-                <div class="stat-card">
-                    <div class="number">7亿</div>
-                    <div class="label">二手烟暴露人口</div>
-                    <div class="source">WHO报告</div>
+                <div class="card">
+                    <div class="card-header">男性吸烟率</div>
+                    <div class="card-value danger">~46%</div>
+                    <div class="card-footer">每2个成年男性中近1人吸烟<br>来源：WHO全球烟草报告</div>
                 </div>
-                <div class="stat-card">
-                    <div class="number">22.6%</div>
-                    <div class="label">烟民戒烟率</div>
-                    <div class="source">较2022年上升0.2pp</div>
+                <div class="card">
+                    <div class="card-header">二手烟暴露人口</div>
+                    <div class="card-value danger">7亿</div>
+                    <div class="card-footer">含1.8亿儿童<br>每年约10万人因此死亡</div>
                 </div>
+            </div>
+            
+            <div class="image-container">
+                <img src="assets/agnes_2026-08-21T14-56-53-276Z-1441_infographic-showing-smoking-st.png" alt="中国吸烟统计信息图">
+                <p class="image-caption">图1：中国烟草流行现状数据可视化（AI生成辅助图示）</p>
+            </div>
+            
+            <h3>健康危害后果</h3>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">01</div>
+                    <div class="step-content">
+                        <h4>每年死亡人数</h4>
+                        <p>约<strong>100万人</strong>死于烟草相关疾病（WHO数据），相当于每天约2,700人。</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">02</div>
+                    <div class="step-content">
+                        <h4>未来预测</h4>
+                        <p>若不采取有效措施，2030年将增至<strong>200万</strong>/年，2050年将达<strong>300万</strong>/年。</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">03</div>
+                    <div class="step-content">
+                        <h4>致癌物质</h4>
+                        <p>烟草烟雾中含有<strong>69种致癌物</strong>，可导致肺癌、口腔癌、喉癌、食管癌等多种癌症。</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="image-container">
+                <img src="assets/agnes_2026-08-21T14-57-54-701Z-190a_health-warning-illustration-lu.png" alt="吸烟健康危害警示">
+                <p class="image-caption">图2：吸烟健康危害警示（AI生成辅助图示）</p>
             </div>
         </section>
         
-        <!-- Slide 7: Section 03 -->
-        <section class="slide section">
-            <div class="numeral">03</div>
-            <h2>思想成因分析</h2>
+        <!-- Section 3 -->
+        <section>
+            <h2>三、经济影响分析</h2>
+            
+            <h3>3.1 对总体经济的影响</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>维度</th>
+                        <th>正面影响</th>
+                        <th>负面影响</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>财政收入</strong></td>
+                        <td class="positive">年贡献约1.5-1.6万亿元<br>占全国税收约8%</td>
+                        <td>税收依赖不可持续<br>健康成本超过税收贡献</td>
+                    </tr>
+                    <tr>
+                        <td><strong>就业带动</strong></td>
+                        <td class="positive">产业链涉及约600万就业人口<br>（种植、生产、销售）</td>
+                        <td>就业结构单一<br>缺乏创新驱动</td>
+                    </tr>
+                    <tr>
+                        <td><strong>医疗负担</strong></td>
+                        <td>—</td>
+                        <td class="negative">每年数千亿元医疗支出<br>加重医保系统压力</td>
+                    </tr>
+                    <tr>
+                        <td><strong>生产力损失</strong></td>
+                        <td>—</td>
+                        <td class="negative">早亡和失能导致劳动力减少<br>年均损失数千亿元</td>
+                    </tr>
+                    <tr>
+                        <td><strong>环境成本</strong></td>
+                        <td>—</td>
+                        <td class="negative">每年4.5万亿烟蒂污染<br>耕地和水资源浪费</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>3.2 对国家战略的影响</h3>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">✓</div>
+                    <div class="step-content">
+                        <h4>"健康中国2030"目标</h4>
+                        <p>到2030年15岁以上人群吸烟率降至<strong>20%以下</strong>，当前23.2%仍有较大差距。</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">!</div>
+                    <div class="step-content">
+                        <h4>国际承诺</h4>
+                        <p>中国是WHO《烟草控制框架公约》缔约方，需履行控烟义务，提升国际形象。</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">→</div>
+                    <div class="step-content">
+                        <h4>经济转型需求</h4>
+                        <p>高质量发展需要创新驱动，而非依赖高污染、高 health burden 的烟草产业。</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="image-container">
+                <img src="assets/agnes_2026-08-21T14-59-12-772Z-60ae_timeline-showing-tobacco-econo.png" alt="烟草经济成本趋势图">
+                <p class="image-caption">图3：烟草经济成本增长趋势（AI生成辅助图示）</p>
+            </div>
         </section>
         
-        <!-- Slide 8: Cognitive Bias -->
-        <section class="slide">
-            <h3>为何烟民会产生"纳税贡献论"？</h3>
-            <div class="process">
-                <div class="process-step">
-                    <div class="num">01</div>
-                    <div class="text">
+        <!-- Section 4 -->
+        <section>
+            <h2>四、思想成因分析</h2>
+            
+            <p style="margin-bottom: 16px; color: var(--muted);">
+                为何烟民会提出"我抽烟，烟草纳税，供养航母"这种说法？
+            </p>
+            
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">01</div>
+                    <div class="step-content">
                         <h4>认知偏差</h4>
-                        <p>高估个人贡献，低估社会成本。只看到税收数字，不了解健康成本的规模。</p>
+                        <p>烟民倾向于高估自己通过纳税做出的贡献，同时低估烟草造成的社会健康成本。这种"我有所贡献"的心理让他们产生道德优越感。</p>
                     </div>
                 </div>
-                <div class="process-step">
-                    <div class="num">02</div>
-                    <div class="text">
+                <div class="step">
+                    <div class="step-num">02</div>
+                    <div class="step-content">
                         <h4>心理防御机制</h4>
-                        <p>为自身成瘾行为寻找合理化借口，减轻认知失调带来的心理压力。</p>
+                        <p>为自身成瘾行为寻找合理化借口，减轻认知失调带来的心理压力。"纳税贡献论"成为一种自我安慰的叙事。</p>
                     </div>
                 </div>
-                <div class="process-step">
-                    <div class="num">03</div>
-                    <div class="text">
+                <div class="step">
+                    <div class="step-num">03</div>
+                    <div class="step-content">
                         <h4>信息不对称</h4>
-                        <p>烟草行业长期营销"纳税大户"形象，公众对真实经济成本缺乏了解。</p>
+                        <p>烟草行业的税收数字公开易见，而健康成本分散在医疗机构和统计数据中，公众难以感知。烟草行业长期营销"纳税大户"形象也强化了这一认知。</p>
                     </div>
                 </div>
-                <div class="process-step">
-                    <div class="num">04</div>
-                    <div class="text">
-                        <h4>群体认同</h4>
-                        <p>将个人消费行为与国家利益绑定，形成群体归属感和道德优越感。</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
-        <!-- Slide 9: Section 04 -->
-        <section class="slide section">
-            <div class="numeral">04</div>
-            <h2>结论与建议</h2>
-        </section>
-        
-        <!-- Slide 10: Conclusion -->
-        <section class="slide">
-            <h3>核心结论</h3>
-            <div class="timeline">
-                <div class="timeline-item">
-                    <div class="year">结论一</div>
-                    <div class="content">
-                        <h4>烟草财政不足以支撑国防</h4>
-                        <p>烟草财政约占国防预算的87%，但并非专款专用。国防预算有多元化来源。</p>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="year">结论二</div>
-                    <div class="content">
-                        <h4>净经济损失巨大</h4>
-                        <p>每收进1元烟草税，社会需付出约1.6元的健康和经济成本。</p>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="year">结论三</div>
-                    <div class="content">
-                        <h4>健康代价不可逆转</h4>
-                        <p>每年约100万人死于烟草相关疾病，其中7亿非吸烟者受二手烟危害。</p>
+                <div class="step">
+                    <div class="step-num">04</div>
+                    <div class="step-content">
+                        <h4>群体认同与话语绑定</h4>
+                        <p>将个人消费行为与国家利益绑定，形成"纳税公民"的身份认同。这种话语策略模糊了个人健康选择与国家财政的真实关系。</p>
                     </div>
                 </div>
             </div>
         </section>
         
-        <!-- Slide 11: Actions -->
-        <section class="slide">
-            <h3>行动建议</h3>
-            <div class="process">
-                <div class="process-step">
-                    <div class="num">1</div>
-                    <div class="text">
+        <!-- Section 5 -->
+        <section>
+            <h2>五、建议行动</h2>
+            
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <div class="step-content">
                         <h4>提高烟草税</h4>
-                        <p>通过价格杠杆降低吸烟率，同时为公共卫生项目筹集资金。</p>
+                        <p>通过价格杠杆降低吸烟率，同时为公共卫生项目筹集资金。研究显示，提税是最具成本效益的控烟手段。</p>
                     </div>
                 </div>
-                <div class="process-step">
-                    <div class="num">2</div>
-                    <div class="text">
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <div class="step-content">
                         <h4>加强公众教育</h4>
-                        <p>普及烟草真实经济成本，破除"纳税贡献"迷思。</p>
+                        <p>普及烟草真实经济成本，破除"纳税贡献"迷思。让公众了解每1元税收背后的1.6元社会代价。</p>
                     </div>
                 </div>
-                <div class="process-step">
-                    <div class="num">3</div>
-                    <div class="text">
-                        <h4>扩大无烟立法</h4>
-                        <p>实现全面无烟法规保护人口比例达到80%目标。</p>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <div class="step-content">
+                        <h4>扩大无烟立法覆盖</h4>
+                        <p>实现全面无烟法规保护人口比例达到80%目标，目前仅14%人口受保护。</p>
                     </div>
                 </div>
-                <div class="process-step">
-                    <div class="num">4</div>
-                    <div class="text">
+                <div class="step">
+                    <div class="step-num">4</div>
+                    <div class="step-content">
                         <h4>推广戒烟服务</h4>
-                        <p>提高戒烟率，减少个人健康损失和社会医疗负担。</p>
+                        <p>提高戒烟热线、药物辅助的可及性，将戒烟治疗纳入基本医疗保险。</p>
                     </div>
                 </div>
             </div>
         </section>
         
-        <!-- Slide 12: Closing -->
-        <section class="slide closing">
+        <!-- CTA -->
+        <section class="cta-section">
             <h2>抽烟有害健康</h2>
-            <p class="cta">不要为烟草辩护，选择健康生活</p>
+            <p>不要被"纳税贡献"的话术迷惑。真正的爱国是保护自己和他人的健康。</p>
             <ul class="action-list">
                 <li>拒绝第一支烟</li>
                 <li>远离二手烟</li>
@@ -578,75 +754,62 @@
                 <li>帮助家人戒烟</li>
             </ul>
         </section>
+        
+        <!-- Sources -->
+        <section class="sources">
+            <h3>📚 完整参考数据与来源链接</h3>
+            <ol>
+                <li>
+                    <strong>国家烟草专卖局. (2026).</strong> 2025年烟草行业实现工商税利总额16570亿元. 
+                    <a href="http://www.xinhuanet.com/20260122/e01afe19964049e8b0da1df3d0956df2/c.html" target="_blank">新华网原文</a>
+                </li>
+                <li>
+                    <strong>财政部. (2025).</strong> 2025年中央和地方预算草案报告.
+                    <a href="https://www.mof.gov.cn/zhengwuxinxi/caizhengxinwen/202601/t20260130_3983013.htm" target="_blank">财政部官网</a>
+                </li>
+                <li>
+                    <strong>Zheng R, et al. (2025).</strong> Economic cost of cigarette smoking in China: a propensity score matching and DALY-based analysis (2014-2020). 
+                    <a href="https://tobaccocontrol-bmj-com.bibliotheek.ehb.be/content/early/2025/04/16/tc-2024-059099" target="_blank">Tobacco Control (BMJ)</a> · 
+                    <a href="https://pubmed.ncbi.nlm.nih.gov/40121021" target="_blank">PubMed</a>
+                </li>
+                <li>
+                    <strong>WHO & UNDP. (2017).</strong> The Bill China Cannot Afford: Health, Economic and Social Costs of China's Tobacco Epidemic.
+                    <a href="https://www.undp.org/china/publications/bill-china-cannot-afford-health-economic-and-social-costs-chinas-tobacco-epidemic" target="_blank">UNDP官网</a>
+                </li>
+                <li>
+                    <strong>中国疾病预防控制中心. (2025).</strong> 2024年中国成人烟草调查主要结果和发现.
+                    <a href="https://www.chinacdc.cn/jksj/jksj04/202506/t20250616_307668.html" target="_blank">中国疾控中心官网</a>
+                </li>
+                <li>
+                    <strong>新华网. (2025).</strong> 继续下降！中国15岁及以上人群现在吸烟率为23.2%.
+                    <a href="https://www.news.cn/politics/20250529/22feaafe3fd44d7ca1012f30c87ee40f/c.html" target="_blank">新华网原文</a>
+                </li>
+                <li>
+                    <strong>观察者网. (2025).</strong> 2024年烟草行业实现工商税利总额16008亿元.
+                    <a href="https://www.guancha.cn/economy/2025_03_06_767466.shtml" target="_blank">观察者网原文</a>
+                </li>
+                <li>
+                    <strong>中华网. (2025).</strong> 烟草造成经济损失约9000亿 控烟迫在眉睫.
+                    <a href="https://news.china.com/socialgd/10000169/20250701/48538653.html" target="_blank">中华网原文</a>
+                </li>
+                <li>
+                    <strong>SIPRI. (2025).</strong> Military Expenditure Database - China.
+                    <a href="https://www.sipri.org/databases/milex" target="_blank">SIPRI官网</a>
+                </li>
+                <li>
+                    <strong>WHO. (2025).</strong> Global tobacco epidemic report.
+                    <a href="https://www.who.int/china/health-topics/tobacco" target="_blank">WHO官网</a>
+                </li>
+                <li>
+                    <strong>CNA (中国新闻网). (2025).</strong> 2025年全国一般公共预算安排国防支出1.81万亿元.
+                    <a href="https://www.chinanews.com.cn/gn/2025/03-09/10380415.shtml" target="_blank">中新网原文</a>
+                </li>
+                <li>
+                    <strong>澎湃新闻. (2025).</strong> 烟草每年使我国100多万人失去生命.
+                    <a href="https://m.thepaper.cn/bulletDetail/30245768" target="_blank">澎湃新闻原文</a>
+                </li>
+            </ol>
+        </section>
     </div>
-    
-    <div class="nav-hint">← → 翻页</div>
-    
-    <script>
-        // Progress bar
-        function updateProgress() {
-            const slides = document.querySelectorAll('.slide');
-            const scrollHeight = window.scrollY;
-            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-            const progress = (scrollHeight / docHeight) * 100;
-            document.getElementById('progress').style.width = progress + '%';
-        }
-        
-        window.addEventListener('scroll', updateProgress);
-        
-        // Keyboard navigation
-        document.addEventListener('keydown', (e) => {
-            const slides = document.querySelectorAll('.slide');
-            const windowHeight = window.innerHeight;
-            let currentSlide = null;
-            
-            slides.forEach((slide, index) => {
-                const rect = slide.getBoundingClientRect();
-                if (rect.top < windowHeight / 2 && rect.bottom > windowHeight / 2) {
-                    currentSlide = index;
-                }
-            });
-            
-            if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') {
-                e.preventDefault();
-                if (currentSlide < slides.length - 1) {
-                    slides[currentSlide + 1].scrollIntoView({ behavior: 'smooth' });
-                }
-            } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
-                e.preventDefault();
-                if (currentSlide > 0) {
-                    slides[currentSlide - 1].scrollIntoView({ behavior: 'smooth' });
-                }
-            }
-        });
-        
-        // Smooth scroll for mouse wheel
-        let isScrolling = false;
-        document.addEventListener('wheel', (e) => {
-            if (isScrolling) return;
-            isScrolling = true;
-            
-            setTimeout(() => {
-                isScrolling = false;
-            }, 800);
-            
-            const slides = document.querySelectorAll('.slide');
-            const windowHeight = window.innerHeight;
-            let currentSlide = null;
-            
-            slides.forEach((slide, index) => {
-                const rect = slide.getBoundingClientRect();
-                if (rect.top < windowHeight / 2 && rect.bottom > windowHeight / 2) {
-                    currentSlide = index;
-                }
-            });
-            
-            if (e.deltaY > 0 && currentSlide < slides.length - 1) {
-                slides[currentSlide + 1].scrollIntoView({ behavior: 'smooth' });
-            } else if (e.deltaY < 0 && currentSlide > 0) {
-                slides[currentSlide - 1].scrollIntoView({ behavior: 'smooth' });
-            }
-        });
-    </script>
 </body>
 </html>
