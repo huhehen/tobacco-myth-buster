@@ -1,0 +1,16 @@
+{
+  "models": [
+    {
+      "name": "Agnes 闪电狼",
+      "provider": "openai_compatible",
+      "base_url": "https://apihub.agnes-ai.com/v1",
+      "api_key_env": "AGNES_API_KEY",
+      "model": "agnes-2.0-flash",
+      "tts_voice": "zh-CN-YunxiNeural"
+    }
+  ],
+  "voice_pool": {
+    "male": ["zh-CN-YunxiNeural", "zh-CN-YunyangNeural", "zh-CN-YunhaoNeural", "zh-CN-YunjianNeural"],
+    "female": ["zh-CN-XiaoxiaoNeural", "zh-CN-XiaoyiNeural", "zh-CN-YunxiaNeural"]
+  }
+}
