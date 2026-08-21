@@ -4,24 +4,52 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>驳斥"烟草纳税供养航母"说法 - 数据调研报告</title>
+    <meta name="description" content="基于权威数据的多源交叉验证调研报告，揭示烟草行业真实经济成本远超其税收贡献">
+    <meta name="keywords" content="烟草,控烟,健康,经济成本,纳税,国防,数据">
+    <meta name="author" content="Tobacco Myth Buster Project">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://huhehen.github.io/tobacco-myth-buster/">
+    <meta property="og:title" content="驳斥'烟草纳税供养航母'说法 - 数据调研报告">
+    <meta property="og:description" content="每收进1元烟草税，社会需付出约1.6元的健康成本">
+    <meta property="og:image" content="https://huhehen.github.io/tobacco-myth-buster/assets/agnes_2026-08-21T14-54-25-045Z-09e7_data-visualization-infographic.png">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://huhehen.github.io/tobacco-myth-buster/">
+    <meta property="twitter:title" content="驳斥'烟草纳税供养航母'说法 - 数据调研报告">
+    <meta property="twitter:description" content="每收进1元烟草税，社会需付出约1.6元的健康成本">
+    <meta property="twitter:image" content="https://huhehen.github.io/tobacco-myth-buster/assets/agnes_2026-08-21T14-54-25-045Z-09e7_data-visualization-infographic.png">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #F5F5F5;
+            --bg: #FAFAFA;
+            --bg-alt: #F3F4F6;
             --card-bg: #FFFFFF;
-            --ink: #0A0A0A;
-            --ink-2: #1F1F1F;
+            --ink: #111827;
+            --ink-2: #1F2937;
             --muted: #6B7280;
             --muted-2: #9CA3AF;
             --line: #E5E7EB;
+            --line-strong: #D1D5DB;
             --danger: #DC2626;
+            --danger-light: #FEF2F2;
             --warning: #D97706;
+            --warning-light: #FFFBEB;
             --success: #16A34A;
+            --success-light: #F0FDF4;
+            --accent: #2563EB;
             --font-display: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
             --font-body: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
             --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
         }
         
         * {
@@ -35,6 +63,15 @@
             background: var(--bg);
             color: var(--ink);
             line-height: 1.7;
+            scroll-behavior: smooth;
+        }
+        
+        * {
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+        
+        section:hover {
+            box-shadow: var(--shadow-md);
         }
         
         .container {
@@ -65,11 +102,12 @@
         .badge {
             display: inline-block;
             padding: 6px 14px;
-            background: var(--danger);
+            background: linear-gradient(135deg, var(--danger), #B91C1C);
             color: white;
-            border-radius: 4px;
+            border-radius: 20px;
             font-size: 0.8rem;
             font-weight: 500;
+            box-shadow: var(--shadow-sm);
         }
         
         /* Section */
@@ -79,6 +117,25 @@
             padding: 32px;
             margin-bottom: 24px;
             border: 1px solid var(--line);
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--danger), var(--warning));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        section:hover::before {
+            opacity: 1;
         }
         
         h2 {
@@ -87,6 +144,19 @@
             margin-bottom: 24px;
             padding-bottom: 12px;
             border-bottom: 2px solid var(--line);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        h2::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 1.4rem;
+            background: linear-gradient(180deg, var(--danger), var(--warning));
+            border-radius: 2px;
+            flex-shrink: 0;
         }
         
         h3 {
@@ -103,7 +173,7 @@
         
         /* Summary Box */
         .summary-box {
-            background: linear-gradient(135deg, #FEF2F2 0%, #FECACA 100%);
+            background: linear-gradient(135deg, var(--danger-light) 0%, #FECACA 100%);
             border-left: 4px solid var(--danger);
             padding: 20px;
             border-radius: 0 8px 8px 0;
@@ -146,15 +216,20 @@
             font-size: 0.8rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            background: #F9FAFB;
+            background: var(--bg-alt);
         }
         
         tr:last-child td {
             border-bottom: none;
         }
         
+        tr:nth-child(even) {
+            background: var(--bg);
+        }
+        
         tr:hover {
-            background: #F9FAFB;
+            background: #EEF2FF;
+            transition: background 0.2s ease;
         }
         
         .number {
@@ -189,7 +264,14 @@
             border: 1px solid var(--line);
             border-radius: 8px;
             padding: 16px;
-            background: #FAFAFA;
+            background: var(--bg-alt);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--line-strong);
         }
         
         .card-header {
@@ -236,6 +318,13 @@
             height: auto;
             border-radius: 8px;
             border: 1px solid var(--line);
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .image-container img:hover {
+            transform: scale(1.02);
+            box-shadow: var(--shadow-md);
         }
         
         .image-caption {
@@ -260,6 +349,12 @@
             border: 1px solid var(--line);
             border-radius: 8px;
             background: #FAFAFA;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .step:hover {
+            transform: translateX(4px);
+            box-shadow: var(--shadow);
         }
         
         .step-num {
@@ -267,6 +362,11 @@
             font-weight: 700;
             color: var(--line);
             min-width: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-alt);
+            border-radius: 6px;
         }
         
         .step-content h4 {
@@ -312,6 +412,11 @@
             border: none;
             margin-bottom: 16px;
             font-size: 1.6rem;
+            justify-content: center;
+        }
+        
+        .cta-section h2::before {
+            display: none;
         }
         
         .cta-section p {
@@ -333,6 +438,13 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 6px;
             font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+        
+        .action-list li:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
         }
         
         /* Sources */
@@ -362,7 +474,7 @@
         }
         
         .sources a {
-            color: var(--danger);
+            color: var(--accent);
             text-decoration: none;
         }
         
@@ -370,10 +482,43 @@
             text-decoration: underline;
         }
         
+        /* Scroll to top button */
+        .scroll-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 44px;
+            height: 44px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+            z-index: 1000;
+        }
+        
+        .scroll-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .scroll-top:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(37, 99, 235, 0.3);
+        }
+        
         /* Responsive */
         @media (max-width: 640px) {
             .container {
-                padding: 40px 16px;
+                padding: 32px 16px;
             }
             
             section {
@@ -390,6 +535,41 @@
             
             th, td {
                 padding: 8px 12px;
+            }
+            
+            h2 {
+                font-size: 1.2rem;
+            }
+            
+            .highlight-number {
+                font-size: 1.4rem;
+            }
+            
+            .scroll-top {
+                bottom: 20px;
+                right: 20px;
+                width: 40px;
+                height: 40px;
+            }
+        }
+        
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                transition: none !important;
+                scroll-behavior: auto !important;
+            }
+        }
+        
+        /* Print styles */
+        @media print {
+            .scroll-top {
+                display: none;
+            }
+            
+            section {
+                break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid #ccc;
             }
         }
     </style>
@@ -446,7 +626,7 @@
                         <td class="number">18,100亿元</td>
                         <td class="warning">87.3%</td>
                     </tr>
-                    <tr style="background: #FEF2F2;">
+                    <tr style="background: var(--danger-light);">
                         <td><strong>净损失</strong></td>
                         <td colspan="3" style="text-align: center;">烟草财政不足以覆盖国防预算缺口</td>
                         <td class="negative">约9,000亿/年</td>
@@ -559,7 +739,7 @@
             </div>
             
             <div class="image-container">
-                <img src="assets/agnes_2026-08-21T14-56-53-276Z-1441_infographic-showing-smoking-st.png" alt="中国吸烟统计信息图">
+                <img src="assets/agnes_2026-08-21T14-56-53-276Z-1441_infographic-showing-smoking-st.png" alt="中国吸烟统计信息图" loading="lazy">
                 <p class="image-caption">图1：中国烟草流行现状数据可视化（AI生成辅助图示）</p>
             </div>
             
@@ -589,7 +769,7 @@
             </div>
             
             <div class="image-container">
-                <img src="assets/agnes_2026-08-21T14-57-54-701Z-190a_health-warning-illustration-lu.png" alt="吸烟健康危害警示">
+                <img src="assets/agnes_2026-08-21T14-57-54-701Z-190a_health-warning-illustration-lu.png" alt="吸烟健康危害警示" loading="lazy">
                 <p class="image-caption">图2：吸烟健康危害警示（AI生成辅助图示）</p>
             </div>
         </section>
@@ -662,7 +842,7 @@
             </div>
             
             <div class="image-container">
-                <img src="assets/agnes_2026-08-21T14-59-12-772Z-60ae_timeline-showing-tobacco-econo.png" alt="烟草经济成本趋势图">
+                <img src="assets/agnes_2026-08-21T14-59-12-772Z-60ae_timeline-showing-tobacco-econo.png" alt="烟草经济成本趋势图" loading="lazy">
                 <p class="image-caption">图3：烟草经济成本增长趋势（AI生成辅助图示）</p>
             </div>
         </section>
@@ -811,5 +991,51 @@
             </ol>
         </section>
     </div>
+    
+    <!-- Scroll to top button -->
+    <button class="scroll-top" id="scrollTop" aria-label="返回顶部">↑</button>
+    
+    <script>
+        // Scroll to top button
+        const scrollTopBtn = document.getElementById('scrollTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                scrollTopBtn.classList.add('visible');
+            } else {
+                scrollTopBtn.classList.remove('visible');
+            }
+        });
+        
+        scrollTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+        
+        // Intersection Observer for fade-in animation
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+        
+        // Apply to sections
+        document.querySelectorAll('section').forEach(section => {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(20px)';
+            section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(section);
+        });
+    </script>
 </body>
 </html>
