@@ -1,1 +1,28 @@
-backend/.env
+# tobacco-myth-buster 项目专用
+# 排除其他项目
+
+# 其他项目目录
+docs/
+程序/
+
+# 系统文件
+.DS_Store
+.*_lock
+*.log
+
+# AI 工具缓存
+.cache/
+.agnes/
+.dsh/
+.hermes/
+.claude/
+.codex/
+.openviking/
+
+# 其他个人目录
+~/Desktop/
+~/Documents/
+~/Downloads/
+~/Movies/
+~/Music/
+~/Pictures/
